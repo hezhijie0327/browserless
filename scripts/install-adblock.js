@@ -39,7 +39,7 @@ import unzip from 'extract-zip';
     await deleteAsync(uBlockLiteDir);
   }
   const data = await fetch(
-    'https://api.github.com/repos/uBlockOrigin/uBOL-home/releases/latest',
+    'https://api.github.com/repos/AdguardTeam/AdguardBrowserExtension/releases/latest',
   );
   const json = await data.json();
 
