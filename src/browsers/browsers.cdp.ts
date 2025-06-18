@@ -21,6 +21,7 @@ import path from 'path';
 import playwright from 'playwright-core';
 import puppeteerStealth from 'puppeteer-extra';
 
+// 引入随机 UA 生成库
 import UserAgent from 'user-agents';
 
 puppeteerStealth.use(StealthPlugin());
@@ -216,14 +217,19 @@ export class ChromiumCDP extends EventEmitter {
       }
     }
 
-    const userAgent = new UserAgent();
+    // 生成随机桌面 UA
+    const userAgent = new UserAgent([
+      {
+        deviceCategory: "desktop",
+      },
+    ]);
 
     const finalOptions = {
       ...options,
       args: [
         `--remote-debugging-port=${this.port}`,
         `--no-sandbox`,
-        `--user-agent=${userAgent.data.userAgent}`,
+        `--user-agent=${userAgent.data.userAgent}`, // 注入 UA
         ...(options.args || []),
         this.userDataDir ? `--user-data-dir=${this.userDataDir}` : '',
       ].filter((_) => !!_),
