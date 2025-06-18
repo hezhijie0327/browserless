@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   BLESS_PAGE_IDENTIFIER,
   BrowserLauncherOptions,
