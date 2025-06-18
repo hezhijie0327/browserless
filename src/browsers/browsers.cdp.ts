@@ -21,6 +21,8 @@ import path from 'path';
 import playwright from 'playwright-core';
 import puppeteerStealth from 'puppeteer-extra';
 
+import UserAgent from 'user-agents';
+
 puppeteerStealth.use(StealthPlugin());
 
 export class ChromiumCDP extends EventEmitter {
@@ -214,11 +216,14 @@ export class ChromiumCDP extends EventEmitter {
       }
     }
 
+    const userAgent = new UserAgent();
+
     const finalOptions = {
       ...options,
       args: [
         `--remote-debugging-port=${this.port}`,
         `--no-sandbox`,
+        `--user-agent=${userAgent.data.userAgent}`,
         ...(options.args || []),
         this.userDataDir ? `--user-data-dir=${this.userDataDir}` : '',
       ].filter((_) => !!_),
