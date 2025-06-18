@@ -193,7 +193,11 @@ export class ChromiumCDP extends EventEmitter {
     );
 
     const extensions = [
+      /*
+      忽略 blockAds 并强制启用 uBlock
       this.blockAds ? ublockLitePath : null,
+      */
+      ublockLitePath,
       extensionLaunchArgs ? extensionLaunchArgs.split('=')[1] : null,
     ].filter((_) => !!_);
 
@@ -243,9 +247,12 @@ export class ChromiumCDP extends EventEmitter {
       );
     }
 
+    /* 忽略 stealth，强制开启 stealth 模式
     const launch = stealth
       ? puppeteerStealth.launch.bind(puppeteerStealth)
       : puppeteer.launch.bind(puppeteer);
+    */
+    const launch = puppeteerStealth.launch.bind(puppeteerStealth);
 
     this.logger.info(
       finalOptions,
