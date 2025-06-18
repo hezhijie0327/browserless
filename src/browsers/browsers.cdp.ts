@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   BLESS_PAGE_IDENTIFIER,
   BrowserLauncherOptions,
@@ -12,7 +11,7 @@ import {
   once,
   ublockLitePath,
 } from '@browserless.io/browserless';
-import puppeteer, { Browser, Page, Target } from 'puppeteer-core';
+import { Browser, Page, Target } from 'puppeteer-core';
 import { Duplex } from 'stream';
 import { EventEmitter } from 'events';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
@@ -177,7 +176,6 @@ export class ChromiumCDP extends EventEmitter {
 
   public async launch({
     options,
-    stealth,
   }: BrowserLauncherOptions): Promise<Browser> {
     this.port = await getPort();
     this.logger.info(`${this.constructor.name} got open port ${this.port}`);
