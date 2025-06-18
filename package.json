@@ -68,7 +68,7 @@
     "queue": "^7.0.0",
     "systeminformation": "^5.27.3",
     "tar-fs": "^3.0.10",
-    "user-agents": "^1.1.574"
+    "user-agents": "latest"
   },
   "devDependencies": {
     "@types/chai": "^5.2.2",
@@ -79,7 +79,7 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "^24.0.3",
     "@types/sinon": "^17.0.4",
-    "@types/user-agents": "^1.0.4",
+    "@types/user-agents": "latest",
     "@typescript-eslint/eslint-plugin": "^8.34.1",
     "@typescript-eslint/parser": "^8.34.1",
     "assert": "^2.0.0",
