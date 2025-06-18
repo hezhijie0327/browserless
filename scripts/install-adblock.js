@@ -39,6 +39,10 @@ import unzip from 'extract-zip';
     await deleteAsync(uBlockLiteDir);
   }
   const data = await fetch(
+    /*
+    更换去广告插件为 AdGuard
+    'https://api.github.com/repos/uBlockOrigin/uBOL-home/releases/latest',
+    */
     'https://api.github.com/repos/AdguardTeam/AdguardBrowserExtension/releases/latest',
   );
   const json = await data.json();
