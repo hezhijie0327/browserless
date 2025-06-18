@@ -11,6 +11,10 @@ import {
   once,
   ublockLitePath,
 } from '@browserless.io/browserless';
+/*
+移除 puppeteer，修复 TS6133
+import puppeteer, { Browser, Page, Target } from 'puppeteer-core';
+*/
 import { Browser, Page, Target } from 'puppeteer-core';
 import { Duplex } from 'stream';
 import { EventEmitter } from 'events';
@@ -176,6 +180,10 @@ export class ChromiumCDP extends EventEmitter {
 
   public async launch({
     options,
+    /*
+    移除 stealth，修复 TS6133
+    stealth,
+    */
   }: BrowserLauncherOptions): Promise<Browser> {
     this.port = await getPort();
     this.logger.info(`${this.constructor.name} got open port ${this.port}`);
