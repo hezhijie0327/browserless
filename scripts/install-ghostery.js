@@ -18,10 +18,10 @@ import unzip from 'extract-zip';
     mkdirSync(tmpDir, { recursive: true });
   }
 
-  const zipFile = tmpDir + '/adguard.zip';
-  const tmpAdGuardPath = path.join(tmpDir);
+  const zipFile = tmpDir + '/ghostery.zip';
+  const tmpGhosteryPath = path.join(tmpDir);
   const extensionsDir = join(process.cwd(), 'extensions');
-  const adguardDir = join(extensionsDir, 'adguard');
+  const ghosteryDir = join(extensionsDir, 'ghostery');
 
   const downloadUrlToDirectory = (url, dir) =>
     fetch(url).then(
@@ -35,17 +35,17 @@ import unzip from 'extract-zip';
         }),
     );
 
-  if (existsSync(adguardDir)) {
-    await deleteAsync(adguardDir);
+  if (existsSync(ghosteryDir)) {
+    await deleteAsync(ghosteryDir);
   }
   const data = await fetch(
-    'https://api.github.com/repos/AdguardTeam/AdguardBrowserExtension/releases/latest',
+    'https://api.github.com/repos/ghostery/ghostery-extension/releases/latest',
   );
   const json = await data.json();
 
   await downloadUrlToDirectory(json.assets[0].browser_download_url, zipFile);
   await unzip(zipFile, { dir: tmpDir });
-  await moveFile(join(tmpAdGuardPath), join(extensionsDir, 'adguard'));
+  await moveFile(join(tmpGhosteryPath), join(extensionsDir, 'ghostery'));
   await deleteAsync(zipFile, { force: true }).catch((err) => {
     console.warn('Could not delete temporary download file: ' + err.message);
   });
