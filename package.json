@@ -63,7 +63,7 @@
     "playwright-1.51": "npm:patchright-core@1.51.1",
     "playwright-1.52": "npm:patchright-core@1.52.0",
     "playwright-core": "npm:patchright-core@latest",
-    "puppeteer-core": "npm:rebrowser-puppeteer-core@latest",
+    "puppeteer-core": "24.10.2",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "queue": "^7.0.0",
