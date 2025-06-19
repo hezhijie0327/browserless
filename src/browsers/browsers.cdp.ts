@@ -9,8 +9,7 @@ import {
   edgeExecutablePath,
   noop,
   once,
-  adguardPath,
-  ghosteryPath,
+  privacyBadgerPath,
   ublockLitePath,
 } from '@browserless.io/browserless';
 /*
@@ -203,8 +202,7 @@ export class ChromiumCDP extends EventEmitter {
       忽略 blockAds 并强制启用 uBlock
       this.blockAds ? ublockLitePath : null,
       */
-      adguardPath,
-      ghosteryPath,
+      privacyBadgerPath,
       ublockLitePath,
       extensionLaunchArgs ? extensionLaunchArgs.split('=')[1] : null,
     ].filter((_) => !!_);
