@@ -912,6 +912,13 @@ export const adGuardPath = path.join(
   'adguard',
 );
 
+export const privacyBadgerPath = path.join(
+  __dirname,
+  '..',
+  'extensions',
+  'privacy_badger',
+);
+
 export const ublockLitePath = path.join(
   __dirname,
   '..',
