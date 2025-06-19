@@ -905,6 +905,13 @@ export const getCDPClient = (page: Page): CDPSession => {
   return typeof c === 'function' ? c.call(page) : c;
 };
 
+export const adGuardPath = path.join(
+  __dirname,
+  '..',
+  'extensions',
+  'adguard',
+);
+
 export const ublockLitePath = path.join(
   __dirname,
   '..',
