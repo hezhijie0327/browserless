@@ -21,7 +21,7 @@ import unzip from 'extract-zip';
   const zipFile = tmpDir + '/adguard.zip';
   const tmpAdGuardPath = path.join(tmpDir);
   const extensionsDir = join(process.cwd(), 'extensions');
-  const adGuardDir = join(extensionsDir, 'adguard');
+  const adguardDir = join(extensionsDir, 'adguard');
 
   const downloadUrlToDirectory = (url, dir) =>
     fetch(url).then(
@@ -35,8 +35,8 @@ import unzip from 'extract-zip';
         }),
     );
 
-  if (existsSync(adGuardDir)) {
-    await deleteAsync(adGuardDir);
+  if (existsSync(adguardDir)) {
+    await deleteAsync(adguardDir);
   }
   const data = await fetch(
     'https://api.github.com/repos/AdguardTeam/AdguardBrowserExtension/releases/latest',
