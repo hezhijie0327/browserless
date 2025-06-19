@@ -912,11 +912,11 @@ export const adGuardPath = path.join(
   'adguard',
 );
 
-export const privacyBadgerPath = path.join(
+export const ghosteryPath = path.join(
   __dirname,
   '..',
   'extensions',
-  'privacy_badger',
+  'ghostery',
 );
 
 export const ublockLitePath = path.join(
