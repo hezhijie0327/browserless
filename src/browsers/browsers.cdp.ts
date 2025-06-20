@@ -227,11 +227,19 @@ export class ChromiumCDP extends EventEmitter {
       }
     }
 
+    const patchOptions = [
+      '--disable-dev-shm-usage',
+      '--disable-setuid-sandbox',
+      '--no-zygote',
+      '--single-process',
+    ];
+
     const finalOptions = {
       ...options,
       args: [
         `--remote-debugging-port=${this.port}`,
         `--no-sandbox`,
+        ...patchOptions,
         ...(options.args || []),
         this.userDataDir ? `--user-data-dir=${this.userDataDir}` : '',
       ].filter((_) => !!_),
