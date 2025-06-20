@@ -228,9 +228,19 @@ export class ChromiumCDP extends EventEmitter {
     }
 
     const patchOptions = [
+      // 隐藏浏览器自动化控制标识，防止网站检测到自动化脚本
+      '--disable-blink-features=AutomationControlled',
+
+      // 禁用共享内存（/dev/shm）使用，解决 Docker 容器中因共享内存不足导致的崩溃问题
       '--disable-dev-shm-usage',
+
+      // 禁用 setuid 沙箱（降低安全性），解决容器中因权限限制导致的沙箱初始化失败问题
       '--disable-setuid-sandbox',
+
+      // 禁用 zygote 进程孵化器，避免容器中 zygote 启动失败导致浏览器崩溃
       '--no-zygote',
+
+      // 强制以单进程模式运行浏览器，提升容器环境下的稳定性
       '--single-process',
     ];
 
@@ -239,6 +249,7 @@ export class ChromiumCDP extends EventEmitter {
       args: [
         `--remote-debugging-port=${this.port}`,
         `--no-sandbox`,
+        // 注入补充 args
         ...patchOptions,
         ...(options.args || []),
         this.userDataDir ? `--user-data-dir=${this.userDataDir}` : '',
