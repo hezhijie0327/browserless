@@ -9,9 +9,14 @@ import {
   edgeExecutablePath,
   noop,
   once,
+  privacyBadgerPath,
   ublockLitePath,
 } from '@browserless.io/browserless';
+/*
+移除 puppeteer，修复 TS6133
 import puppeteer, { Browser, Page, Target } from 'puppeteer-core';
+*/
+import { Browser, Page, Target } from 'puppeteer-core';
 import { Duplex } from 'stream';
 import { EventEmitter } from 'events';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
@@ -173,7 +178,10 @@ export class ChromiumCDP extends EventEmitter {
 
   public async launch({
     options,
+    /*
+    移除 stealth，修复 TS6133
     stealth,
+    */
   }: BrowserLauncherOptions): Promise<Browser> {
     this.port = await getPort();
     this.logger.info(`${this.constructor.name} got open port ${this.port}`);
@@ -190,7 +198,12 @@ export class ChromiumCDP extends EventEmitter {
     );
 
     const extensions = [
+      /*
+      忽略 blockAds 并强制启用 uBlock
       this.blockAds ? ublockLitePath : null,
+      */
+      privacyBadgerPath,
+      ublockLitePath,
       extensionLaunchArgs ? extensionLaunchArgs.split('=')[1] : null,
     ].filter((_) => !!_);
 
@@ -232,9 +245,12 @@ export class ChromiumCDP extends EventEmitter {
       );
     }
 
+    /* 忽略 stealth，强制开启 stealth 模式
     const launch = stealth
       ? puppeteerStealth.launch.bind(puppeteerStealth)
       : puppeteer.launch.bind(puppeteer);
+    */
+    const launch = puppeteerStealth.launch.bind(puppeteerStealth);
 
     this.logger.info(
       finalOptions,
