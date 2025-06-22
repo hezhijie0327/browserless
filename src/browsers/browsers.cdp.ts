@@ -24,9 +24,24 @@ import getPort from 'get-port';
 import httpProxy from 'http-proxy';
 import path from 'path';
 import playwright from 'playwright-core';
+/*
+移除 puppeteerStealth
 import puppeteerStealth from 'puppeteer-extra';
 
 puppeteerStealth.use(StealthPlugin());
+*/
+
+import puppeteer from 'puppeteer-extra';
+
+puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
+puppeteer.use(RecaptchaPlugin({
+  provider: {
+    id: '2captcha',
+    token: process.env.TWOCAPTCHA_API_KEY || '',
+  },
+  visualFeedback: true
+}));
+puppeteer.use(StealthPlugin());
 
 export class ChromiumCDP extends EventEmitter {
   protected config: Config;
@@ -250,7 +265,7 @@ export class ChromiumCDP extends EventEmitter {
       ? puppeteerStealth.launch.bind(puppeteerStealth)
       : puppeteer.launch.bind(puppeteer);
     */
-    const launch = puppeteerStealth.launch.bind(puppeteerStealth);
+    const launch = puppeteer.launch.bind(puppeteer);
 
     this.logger.info(
       finalOptions,
