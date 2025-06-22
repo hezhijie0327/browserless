@@ -26,19 +26,19 @@ import getPort from 'get-port';
 import httpProxy from 'http-proxy';
 import path from 'path';
 import playwright from 'playwright-core';
-import puppeteer from 'puppeteer-extra';
+import puppeteerStealth from 'puppeteer-extra';
 
 // 引入 Adblock 插件
-puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
+puppeteerStealth.use(AdblockerPlugin({ blockTrackers: true }));
 // 引入 reChaptcha 插件
-puppeteer.use(RecaptchaPlugin({
+puppeteerStealth.use(RecaptchaPlugin({
   provider: {
     id: '2captcha',
     token: process.env.TWOCAPTCHA_API_KEY || '',
   },
   visualFeedback: true
 }));
-puppeteer.use(StealthPlugin());
+puppeteerStealth.use(StealthPlugin());
 
 export class ChromiumCDP extends EventEmitter {
   protected config: Config;
@@ -262,7 +262,7 @@ export class ChromiumCDP extends EventEmitter {
       ? puppeteerStealth.launch.bind(puppeteerStealth)
       : puppeteer.launch.bind(puppeteer);
     */
-    const launch = puppeteer.launch.bind(puppeteer);
+    const launch = puppeteerStealth.launch.bind(puppeteerStealth);
 
     this.logger.info(
       finalOptions,
