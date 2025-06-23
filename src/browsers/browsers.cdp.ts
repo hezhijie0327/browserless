@@ -25,14 +25,17 @@ import path from 'path';
 import playwright from 'playwright-core';
 import puppeteerStealth from 'puppeteer-extra';
 
-// 启用 AdblockPlugin 插件，启用 blockTrackers 功能
+// 启用 AdblockPlugin 插件，启用 blockTrackersAndAnnoyances 功能
 puppeteerStealth.use(AdblockPlugin({
-  blockTrackers: true
+  blockTrackersAndAnnoyances: true,
 }));
 // 启用 RecaptchaPlugin 插件
 puppeteerStealth.use(RecaptchaPlugin({
-  apiKey: process.env.TWORECAPTCHA_API_KEY,
-  provider: '2captcha',
+  provider: {
+    id: '2captcha',
+    token: process.env.TWORECAPTCHA_API_KEY || '',
+  },
+  visualFeedback: true,
 }));
 puppeteerStealth.use(StealthPlugin());
 
