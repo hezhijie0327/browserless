@@ -28,12 +28,13 @@ import puppeteerStealth from 'puppeteer-extra';
 // 启用 AdblockPlugin 插件，启用 blockTrackersAndAnnoyances 功能
 puppeteerStealth.use(AdblockPlugin({
   blockTrackersAndAnnoyances: true,
+  useCache: true,
 }));
 // 启用 RecaptchaPlugin 插件
 puppeteerStealth.use(RecaptchaPlugin({
   provider: {
     id: '2captcha',
-    token: process.env.TWORECAPTCHA_API_KEY || '',
+    token: process.env.TWOCAPTCHA_API_KEY || '',
   },
   visualFeedback: true,
 }));
