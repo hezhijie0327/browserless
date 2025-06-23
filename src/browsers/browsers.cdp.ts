@@ -15,7 +15,9 @@ import {
 import puppeteer, { Browser, Page, Target } from 'puppeteer-core';
 import { Duplex } from 'stream';
 import { EventEmitter } from 'events';
+// 引入 adblocker 及 recaptcha 插件
 import AdblockPlugin from 'puppeteer-extra-plugin-adblocker';
+import RecaptchaPlugin from 'puppeteer-extra-plugin-recaptcha';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import getPort from 'get-port';
 import httpProxy from 'http-proxy';
@@ -23,10 +25,16 @@ import path from 'path';
 import playwright from 'playwright-core';
 import puppeteerStealth from 'puppeteer-extra';
 
-puppeteerStealth.use(StealthPlugin());
+// 启用 AdblockPlugin 插件，启用 blockTrackers 功能
 puppeteerStealth.use(AdblockPlugin({
   blockTrackers: true
 }));
+// 启用 RecaptchaPlugin 插件
+puppeteerStealth.use(RecaptchaPlugin({
+  apiKey: process.env.TWORECAPTCHA_API_KEY,
+  provider: '2captcha',
+}));
+puppeteerStealth.use(StealthPlugin());
 
 export class ChromiumCDP extends EventEmitter {
   protected config: Config;
