@@ -905,6 +905,13 @@ export const getCDPClient = (page: Page): CDPSession => {
   return typeof c === 'function' ? c.call(page) : c;
 };
 
+export const clearUrlsPath = path.join(
+  __dirname,
+  '..',
+  'extensions',
+  'clearurls',
+);
+
 export const privacyBadgerPath = path.join(
   __dirname,
   '..',
