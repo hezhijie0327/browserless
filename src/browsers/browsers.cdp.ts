@@ -9,11 +9,15 @@ import {
   edgeExecutablePath,
   noop,
   once,
+  // 引入 Privacy Badger 位置
+  privacyBadgerPath,
   ublockLitePath,
 } from '@browserless.io/browserless';
 import puppeteer, { Browser, Page, Target } from 'puppeteer-core';
 import { Duplex } from 'stream';
 import { EventEmitter } from 'events';
+// 引入 adblocker 插件（使用 Ghostery 的实现）
+import { PuppeteerBlocker } from '@ghostery/adblocker-puppeteer';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import getPort from 'get-port';
 import httpProxy from 'http-proxy';
@@ -35,6 +39,8 @@ export class ChromiumCDP extends EventEmitter {
   protected proxy = httpProxy.createProxyServer();
   protected executablePath = playwright.chromium.executablePath();
   protected keepUntilMS = 0;
+  // Ghostery blocker 实例（或正在创建的 Promise）
+  protected blocker: Promise<PuppeteerBlocker> | null = null;
 
   constructor({
     blockAds,
@@ -53,6 +59,22 @@ export class ChromiumCDP extends EventEmitter {
     this.config = config;
     this.blockAds = blockAds;
     this.logger = logger;
+
+    // stealth 模式下，创建 Ghostery PuppeteerBlocker（屏蔽广告与追踪）
+    if (blockAds) {
+      // 使用预置的 ads+tracking 规则
+      // `fromPrebuiltAdsAndTracking` 需要一个 fetch 实现；Node 18+ 有全局 fetch
+      try {
+        this.blocker = (PuppeteerBlocker as any).fromPrebuiltAdsAndTracking(
+          // @ts-ignore - global fetch
+          fetch,
+        );
+      } catch (e) {
+        // 保持不抛出，以免阻止启动；记录错误并继续
+        this.logger.warn(`Failed to initialize PuppeteerBlocker: ${e}`);
+        this.blocker = null;
+      }
+    }
 
     this.logger.info(`Starting new ${this.constructor.name} instance`);
   }
@@ -135,6 +157,19 @@ export class ChromiumCDP extends EventEmitter {
           }
         });
 
+        // 如果启用了 adblock，向页面注入 Ghostery 屏蔽器
+        if (this.blocker) {
+          try {
+            const blockerInstance: any = await this.blocker;
+            // enableBlockingInPage 会注入内容脚本以拦截请求
+            await blockerInstance.enableBlockingInPage(page);
+          } catch (err) {
+            this.logger.warn(
+              `Failed to enable PuppeteerBlocker on page: ${err}`,
+            );
+          }
+        }
+
         this.emit('newPage', page);
       }
     }
@@ -197,6 +232,8 @@ export class ChromiumCDP extends EventEmitter {
     );
 
     const extensions = [
+      // 引入 Privacy Badger 插件
+      this.blockAds ? privacyBadgerPath : null,
       this.blockAds ? ublockLitePath : null,
       extensionLaunchArgs ? extensionLaunchArgs.split('=')[1] : null,
     ].filter((_) => !!_);
@@ -221,6 +258,29 @@ export class ChromiumCDP extends EventEmitter {
       }
     }
 
+    const patchOptions = [
+      // 浏览器参数
+      '--disable-crashpad',
+      '--disable-crashpad-for-testing',
+      '--disable-crashpad-forwarding',
+      '--disable-in-process-stack-traces',
+      '--no-default-browser-check',
+
+      // 反检测增强
+      '--disable-blink-features=AutomationControlled',
+      '--disable-features=WebRTC',
+      '--exclude-switches=enable-automation',
+      '--no-pings',
+
+      // 性能优化
+      '--aggressive-cache-discard',
+
+      // 容器环境
+      '--disable-setuid-sandbox',
+      '--no-zygote',
+      '--single-process',
+    ];
+
     const finalOptions = {
       ...options,
       args: [
@@ -229,6 +289,8 @@ export class ChromiumCDP extends EventEmitter {
         // Playwright 1.57+ uses Chrome For Test, which has stricter security than Chromium.
         // This is needed to allow WebSocket connections to localhost.
         `--disable-features=LocalNetworkAccessChecks`,
+        // 注入补充 Patch 参数
+        ...patchOptions,
         ...(options.args || []),
         this.userDataDir ? `--user-data-dir=${this.userDataDir}` : '',
       ].filter((_) => !!_),
