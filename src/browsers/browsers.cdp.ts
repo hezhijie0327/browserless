@@ -51,6 +51,14 @@ export class ChromiumCDP extends EventEmitter {
   }) {
     super();
 
+    // stealth 模式下，启用 AdblockPlugin 插件，启用 blockTrackersAndAnnoyances 功能
+    if (blockAds) {
+      puppeteerStealth.use(AdblockPlugin({
+        blockTrackersAndAnnoyances: true,
+        useCache: true,
+      }));      
+    }
+
     this.userDataDir = userDataDir;
     this.config = config;
     this.blockAds = blockAds;
@@ -180,14 +188,6 @@ export class ChromiumCDP extends EventEmitter {
   }: BrowserLauncherOptions): Promise<Browser> {
     this.port = await getPort();
     this.logger.info(`${this.constructor.name} got open port ${this.port}`);
-
-    // stealth 模式下，启用 AdblockPlugin 插件，启用 blockTrackersAndAnnoyances 功能
-    if (this.blockAds) {
-      puppeteerStealth.use(AdblockPlugin({
-        blockTrackersAndAnnoyances: true,
-        useCache: true,
-      }));      
-    }
 
     const extensionLaunchArgs = options.args?.find((a) =>
       a.startsWith('--load-extension'),
