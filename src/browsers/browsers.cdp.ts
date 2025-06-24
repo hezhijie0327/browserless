@@ -9,11 +9,14 @@ import {
   edgeExecutablePath,
   noop,
   once,
+  privacyBadgerPath,
   ublockLitePath,
 } from '@browserless.io/browserless';
 import puppeteer, { Browser, Page, Target } from 'puppeteer-core';
 import { Duplex } from 'stream';
 import { EventEmitter } from 'events';
+// 引入 adblocker 插件
+import AdblockPlugin from 'puppeteer-extra-plugin-adblocker';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import getPort from 'get-port';
 import httpProxy from 'http-proxy';
@@ -178,6 +181,14 @@ export class ChromiumCDP extends EventEmitter {
     this.port = await getPort();
     this.logger.info(`${this.constructor.name} got open port ${this.port}`);
 
+    // stealth 模式下，启用 AdblockPlugin 插件，启用 blockTrackersAndAnnoyances 功能
+    if (this.blockAds) {
+      puppeteerStealth.use(AdblockPlugin({
+        blockTrackersAndAnnoyances: true,
+        useCache: true,
+      }));      
+    }
+
     const extensionLaunchArgs = options.args?.find((a) =>
       a.startsWith('--load-extension'),
     );
@@ -190,6 +201,8 @@ export class ChromiumCDP extends EventEmitter {
     );
 
     const extensions = [
+      // 引入 Privacy Badger 插件
+      this.blockAds ? privacyBadgerPath : null,
       this.blockAds ? ublockLitePath : null,
       extensionLaunchArgs ? extensionLaunchArgs.split('=')[1] : null,
     ].filter((_) => !!_);
