@@ -9,6 +9,7 @@ import {
   edgeExecutablePath,
   noop,
   once,
+  clearUrlsPath,
   privacyBadgerPath,
   ublockLitePath,
 } from '@browserless.io/browserless';
@@ -201,7 +202,8 @@ export class ChromiumCDP extends EventEmitter {
     );
 
     const extensions = [
-      // 引入 Privacy Badger 插件
+      // 引入 Privacy Badger 及 ClearURLs 插件
+      this.blockAds ? clearUrlsPath : null,
       this.blockAds ? privacyBadgerPath : null,
       this.blockAds ? ublockLitePath : null,
       extensionLaunchArgs ? extensionLaunchArgs.split('=')[1] : null,
