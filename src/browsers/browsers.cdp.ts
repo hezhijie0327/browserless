@@ -229,20 +229,20 @@ export class ChromiumCDP extends EventEmitter {
 
     const patchOptions = [
       // 浏览器参数
+      '--disable-default-apps',
+      '--disable-sync',
+      '--hide-scrollbars',
       '--no-default-browser-check',
       '--no-first-run',
 
       // 反检测增强
       '--disable-blink-features=AutomationControlled',
-      '--disable-features=WebRTC',
-      '--disable-web-security',
+      '--disable-features=WebRTC,WebGL,WebGL2',
       '--exclude-switches=enable-automation',
 
       // 性能优化
       '--aggressive-cache-discard',
       '--disable-gpu',
-      '--max_old_space_size=4096',
-      '--memory-pressure-off',
 
       // 容器环境
       '--disable-dev-shm-usage',
