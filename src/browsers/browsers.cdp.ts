@@ -246,7 +246,6 @@ export class ChromiumCDP extends EventEmitter {
       '--aggressive-cache-discard',
 
       // 容器环境
-      '--disable-dev-shm-usage',
       '--disable-setuid-sandbox',
       '--no-zygote',
       '--single-process',
