@@ -229,6 +229,9 @@ export class ChromiumCDP extends EventEmitter {
 
     const patchOptions = [
       // 浏览器参数
+      '--disable-breakpad',
+      '--disable-crashpad',
+      '--disable-crash-reporter',
       '--disable-default-apps',
       '--disable-sync',
       '--hide-scrollbars',
