@@ -9,6 +9,7 @@ import {
   edgeExecutablePath,
   noop,
   once,
+  // 引入 Privacy Badger 位置
   privacyBadgerPath,
   ublockLitePath,
 } from '@browserless.io/browserless';
@@ -231,8 +232,11 @@ export class ChromiumCDP extends EventEmitter {
       // 浏览器参数
       '--disable-breakpad',
       '--disable-crashpad',
+      '--disable-crashpad-for-testing',
+      '--disable-crashpad-forwarding',
       '--disable-crash-reporter',
       '--disable-default-apps',
+      '--disable-in-process-stack-traces',
       '--disable-sync',
       '--hide-scrollbars',
       '--no-default-browser-check',
@@ -242,6 +246,7 @@ export class ChromiumCDP extends EventEmitter {
       '--disable-blink-features=AutomationControlled',
       '--disable-features=WebRTC',
       '--exclude-switches=enable-automation',
+      '--no-pings',
 
       // 性能优化
       '--aggressive-cache-discard',
