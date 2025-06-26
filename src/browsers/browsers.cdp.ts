@@ -227,11 +227,37 @@ export class ChromiumCDP extends EventEmitter {
       }
     }
 
+    const patchOptions = [
+      // 浏览器参数
+      '--no-default-browser-check',
+      '--no-first-run',
+
+      // 反检测增强
+      '--disable-blink-features=AutomationControlled',
+      '--disable-features=WebRTC',
+      '--disable-web-security',
+      '--exclude-switches=enable-automation',
+
+      // 性能优化
+      '--aggressive-cache-discard',
+      '--disable-gpu',
+      '--max_old_space_size=4096',
+      '--memory-pressure-off',
+
+      // 容器环境
+      '--disable-dev-shm-usage',
+      '--disable-setuid-sandbox',
+      '--no-zygote',
+      '--single-process',
+    ];
+
     const finalOptions = {
       ...options,
       args: [
         `--remote-debugging-port=${this.port}`,
         `--no-sandbox`,
+        // 注入补充 Patch 参数
+        ...patchOptions,
         ...(options.args || []),
         this.userDataDir ? `--user-data-dir=${this.userDataDir}` : '',
       ].filter((_) => !!_),
