@@ -230,17 +230,11 @@ export class ChromiumCDP extends EventEmitter {
 
     const patchOptions = [
       // 浏览器参数
-      '--disable-breakpad',
       '--disable-crashpad',
       '--disable-crashpad-for-testing',
       '--disable-crashpad-forwarding',
-      '--disable-crash-reporter',
-      '--disable-default-apps',
       '--disable-in-process-stack-traces',
-      '--disable-sync',
-      '--hide-scrollbars',
       '--no-default-browser-check',
-      '--no-first-run',
 
       // 反检测增强
       '--disable-blink-features=AutomationControlled',
