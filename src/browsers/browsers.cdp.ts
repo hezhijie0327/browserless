@@ -237,12 +237,11 @@ export class ChromiumCDP extends EventEmitter {
 
       // 反检测增强
       '--disable-blink-features=AutomationControlled',
-      '--disable-features=WebRTC,WebGL,WebGL2',
+      '--disable-features=WebRTC',
       '--exclude-switches=enable-automation',
 
       // 性能优化
       '--aggressive-cache-discard',
-      '--disable-gpu',
 
       // 容器环境
       '--disable-dev-shm-usage',
