@@ -7,6 +7,7 @@ import {
   ServerError,
   chromeExecutablePath,
   edgeExecutablePath,
+  sanitizeUrlForLogging,
 } from '@browserless.io/browserless';
 import playwright, { Page } from 'playwright-core';
 import { Duplex } from 'stream';
@@ -129,15 +130,17 @@ class BasePlaywright extends EventEmitter {
   }
 
   public async launch(
-    laucherOpts: BrowserLauncherOptions,
+    launcherOpts: BrowserLauncherOptions,
   ): Promise<playwright.BrowserServer> {
-    const { options, pwVersion } = laucherOpts;
+    const { options, pwVersion } = launcherOpts;
     this.logger.info(`Launching ${this.constructor.name} Handler`);
 
     const opts = this.makeLaunchOptions(options);
     const versionedPw = await this.config.loadPwVersion(pwVersion!);
-    const browser =
-      await versionedPw[this.playwrightBrowserType].launchServer(opts);
+    const browser = await versionedPw[this.playwrightBrowserType].launchServer({
+      ...opts,
+      args: opts.args.filter((_) => !!_),
+    });
     const browserWSEndpoint = browser.wsEndpoint();
 
     this.logger.info(
@@ -190,7 +193,7 @@ class BasePlaywright extends EventEmitter {
       socket.once('close', resolve);
 
       this.logger.info(
-        `Proxying ${req.parsed.href} to ${this.constructor.name} ${this.browserWSEndpoint}`,
+        `Proxying ${sanitizeUrlForLogging(req.parsed.href)} to ${this.constructor.name} ${this.browserWSEndpoint}`,
       );
 
       // Delete headers known to cause issues

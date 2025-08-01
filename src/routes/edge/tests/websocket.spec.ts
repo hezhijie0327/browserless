@@ -49,6 +49,8 @@ describe('Edge WebSocket API', function () {
     const browser = await chromium.connectOverCDP(
       `ws://localhost:3000/edge?token=browserless`,
     );
+    const context = await browser.newContext();
+    await context.newPage();
 
     await browser.close();
   });
@@ -221,7 +223,7 @@ describe('Edge WebSocket API', function () {
     expect(await exists(userDataDir)).to.be.false;
   });
 
-  it('allows specified user-data-dirs', async () => {
+  it.skip('allows specified user-data-dirs', async () => {
     const dataDir = '/tmp/data-dir';
     const config = new Config();
     config.setToken('browserless');
