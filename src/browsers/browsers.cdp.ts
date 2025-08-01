@@ -10,11 +10,14 @@ import {
   noop,
   once,
   sanitizeUrlForLogging,
+  privacyBadgerPath,
   ublockLitePath,
 } from '@browserless.io/browserless';
 import puppeteer, { Browser, Page, Target } from 'puppeteer-core';
 import { Duplex } from 'stream';
 import { EventEmitter } from 'events';
+// 引入 adblocker 插件
+import AdblockPlugin from 'puppeteer-extra-plugin-adblocker';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import getPort from 'get-port';
 import httpProxy from 'http-proxy';
@@ -48,6 +51,14 @@ export class ChromiumCDP extends EventEmitter {
     userDataDir: ChromiumCDP['userDataDir'];
   }) {
     super();
+
+    // stealth 模式下，启用 AdblockPlugin 插件，启用 blockTrackersAndAnnoyances 功能
+    if (blockAds) {
+      puppeteerStealth.use(AdblockPlugin({
+        blockTrackersAndAnnoyances: true,
+        useCache: true,
+      }));      
+    }
 
     this.userDataDir = userDataDir;
     this.config = config;
@@ -191,6 +202,8 @@ export class ChromiumCDP extends EventEmitter {
     );
 
     const extensions = [
+      // 引入 Privacy Badger 插件
+      this.blockAds ? privacyBadgerPath : null,
       this.blockAds ? ublockLitePath : null,
       extensionLaunchArgs ? extensionLaunchArgs.split('=')[1] : null,
     ].filter((_) => !!_);
@@ -215,11 +228,36 @@ export class ChromiumCDP extends EventEmitter {
       }
     }
 
+    const patchOptions = [
+      // 浏览器参数
+      '--disable-crashpad',
+      '--disable-crashpad-for-testing',
+      '--disable-crashpad-forwarding',
+      '--disable-in-process-stack-traces',
+      '--no-default-browser-check',
+
+      // 反检测增强
+      '--disable-blink-features=AutomationControlled',
+      '--disable-features=WebRTC',
+      '--exclude-switches=enable-automation',
+      '--no-pings',
+
+      // 性能优化
+      '--aggressive-cache-discard',
+
+      // 容器环境
+      '--disable-setuid-sandbox',
+      '--no-zygote',
+      '--single-process',
+    ];
+
     const finalOptions = {
       ...options,
       args: [
         `--remote-debugging-port=${this.port}`,
         `--no-sandbox`,
+        // 注入补充 Patch 参数
+        ...patchOptions,
         ...(options.args || []),
         this.userDataDir ? `--user-data-dir=${this.userDataDir}` : '',
       ].filter((_) => !!_),
