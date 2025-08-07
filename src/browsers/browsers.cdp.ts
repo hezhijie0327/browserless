@@ -9,7 +9,6 @@ import {
   edgeExecutablePath,
   noop,
   once,
-  sanitizeUrlForLogging,
   // 引入 Privacy Badger 位置
   privacyBadgerPath,
   ublockLitePath,
