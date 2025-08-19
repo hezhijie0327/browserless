@@ -157,7 +157,13 @@ export class ChromiumCDP extends EventEmitter {
       );
     }
 
-    return this.browser.newPage();
+    const page = await this.browser.newPage();
+
+    if (stealth) {
+      await page.emulate(puppeteer.devices['iPad Mini']);
+    }
+
+    return page;
   }
 
   public async close(): Promise<void> {
@@ -229,9 +235,6 @@ export class ChromiumCDP extends EventEmitter {
     }
 
     const patchOptions = [
-      // 预设屏幕尺寸（iPad Mini）
-      '--window-size=768,1024',
-
       // 浏览器参数
       '--disable-crashpad',
       '--disable-crashpad-for-testing',
