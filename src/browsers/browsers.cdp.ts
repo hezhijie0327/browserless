@@ -90,7 +90,6 @@ export class ChromiumCDP extends EventEmitter {
       });
 
       if (page) {
-        if (page) {
         // --- 核心修改：直接在这里硬编码 iPad Mini 模拟 ---
         const iPadMini = devices['iPad Mini'];
         if (iPadMini) {
