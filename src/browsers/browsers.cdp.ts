@@ -157,6 +157,7 @@ export class ChromiumCDP extends EventEmitter {
       );
     }
 
+    // Stealth 模式下，模拟为 iPad Mini 规避检测，如：小红书
     const page = await this.browser.newPage();
 
     if (stealth) {
