@@ -256,13 +256,9 @@ export class ChromiumCDP extends EventEmitter {
 
     // 通过 User-Agent 随机生成 UA
     const mobileUA = new UserAgent({
-      deviceCategory: 'mobile'
+      deviceCategory: 'tablet',
+      platform: 'iPad'
     });
-    const { screenHeight, screenWidth, viewportWidth, userAgent } = mobileUA.data;
-
-    const deviceScaleFactor = screenWidth && viewportWidth 
-      ? (screenWidth / viewportWidth).toFixed(1)
-      : '2';
 
     const mobileDeviceArgs = [
       // 移动设备模式
@@ -270,12 +266,12 @@ export class ChromiumCDP extends EventEmitter {
       '--touch-events=enabled',
       '--use-mobile-user-agent',
       // User-Agent 库随机生成的信息
-      `--user-agent=${userAgent}`,
-      `--device-scale-factor=${deviceScaleFactor}`,
-      `--screen-height=${screenHeight}`,
-      `--screen-width=${screenWidth}`,
+      `--user-agent=${mobileUA.data.userAgent}`,
+      '--device-scale-factor=2',
+      '--screen-height=1024',
+      '--screen-width=768',
       '--window-position=0,0',
-      `--window-size=${screenWidth},${screenHeight}`,
+      '--window-size=768,1024',
     ];
 
     const finalOptions = {
