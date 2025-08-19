@@ -229,6 +229,9 @@ export class ChromiumCDP extends EventEmitter {
     }
 
     const patchOptions = [
+      // 预设屏幕尺寸（iPad Mini）
+      '--window-size=768,1024',
+
       // 浏览器参数
       '--disable-crashpad',
       '--disable-crashpad-for-testing',
