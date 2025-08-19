@@ -13,7 +13,7 @@ import {
   privacyBadgerPath,
   ublockLitePath,
 } from '@browserless.io/browserless';
-import puppeteer, { Browser, Page, Target } from 'puppeteer-core';
+import puppeteer, { Browser, Page, Target, devices } from 'puppeteer-core';
 import { Duplex } from 'stream';
 import { EventEmitter } from 'events';
 // 引入 adblocker 插件
@@ -90,6 +90,21 @@ export class ChromiumCDP extends EventEmitter {
       });
 
       if (page) {
+        if (page) {
+        // --- 核心修改：直接在这里硬编码 iPad Mini 模拟 ---
+        const iPadMini = devices['iPad Mini'];
+        if (iPadMini) {
+            try {
+                await page.emulate(iPadMini);
+                this.logger.info(`Automatically emulated 'iPad Mini' for new page.`);
+            } catch (error) {
+                this.logger.error(`Failed to emulate 'iPad Mini': ${error.message}`);
+                // 如果模拟失败，可以根据需求选择是否关闭页面或浏览器
+            }
+        } else {
+            this.logger.warn(`'iPad Mini' device configuration not found in puppeteer.devices. Emulation skipped.`);
+        }
+
         this.logger.trace(`Setting up file:// protocol request rejection`);
 
         page.on('error', (err) => {
@@ -157,14 +172,7 @@ export class ChromiumCDP extends EventEmitter {
       );
     }
 
-    // Stealth 模式下，模拟为 iPad Mini 规避检测，如：小红书
-    const page = await this.browser.newPage();
-
-    if (stealth) {
-      await page.emulate(puppeteer.devices['iPad Mini']);
-    }
-
-    return page;
+    return this.browser.newPage();
   }
 
   public async close(): Promise<void> {
