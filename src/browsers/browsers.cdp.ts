@@ -13,7 +13,7 @@ import {
   privacyBadgerPath,
   ublockLitePath,
 } from '@browserless.io/browserless';
-import puppeteer, { Browser, Page, Target, devices } from 'puppeteer-core';
+import puppeteer, { Browser, Page, Target, Device } from 'puppeteer-core';
 import { Duplex } from 'stream';
 import { EventEmitter } from 'events';
 // 引入 adblocker 插件
@@ -91,13 +91,13 @@ export class ChromiumCDP extends EventEmitter {
 
       if (page) {
         // --- 核心修改：直接在这里硬编码 iPad Mini 模拟 ---
-        const iPadMini = devices['iPad Mini'];
+        const iPadMini = Device['iPad Mini'];
         if (iPadMini) {
             try {
                 await page.emulate(iPadMini);
                 this.logger.info(`Automatically emulated 'iPad Mini' for new page.`);
             } catch (error) {
-                this.logger.error(`Failed to emulate 'iPad Mini': ${error.message}`);
+                this.logger.error(`Failed to emulate 'iPad Mini'`);
                 // 如果模拟失败，可以根据需求选择是否关闭页面或浏览器
             }
         } else {
