@@ -16,6 +16,8 @@ import {
 import puppeteer, { Browser, Page, Target } from 'puppeteer-core';
 import { Duplex } from 'stream';
 import { EventEmitter } from 'events';
+// 引入 User-Agent 插件
+import UserAgent from 'user-agents';
 // 引入 adblocker 插件
 import AdblockPlugin from 'puppeteer-extra-plugin-adblocker';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
@@ -252,17 +254,28 @@ export class ChromiumCDP extends EventEmitter {
       '--single-process',
     ];
 
+    // 通过 User-Agent 随机生成 UA
+    const mobileUA = new UserAgent({
+      deviceCategory: 'mobile'
+    });
+    const { screenWidth, viewportWidth, screenHeight } = mobileUA.data;
+
+    const deviceScaleFactor = screenWidth && viewportWidth 
+      ? (screenWidth / viewportWidth).toFixed(1)
+      : '2';
+
     const mobileDeviceArgs = [
       // 移动设备模式
       '--enable-viewport',
       '--touch-events=enabled',
       '--use-mobile-user-agent',
-      // iPad Mini 设备参数
-      '--device-scale-factor=2',
-      '--screen-height=1024',
-      '--screen-width=768',
+      // User-Agent 库随机生成的信息
+      `--user-agent=${userAgentData.userAgent}`,
+      `--device-scale-factor=${deviceScaleFactor}`,
+      `--screen-height=${screenHeight}`,
+      `--screen-width=${screenWidth}`,
       '--window-position=0,0',
-      '--window-size=768,1024',
+      `--window-size=${screenWidth},${screenHeight}`,
     ];
 
     const finalOptions = {
