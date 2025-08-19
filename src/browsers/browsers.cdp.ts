@@ -258,7 +258,7 @@ export class ChromiumCDP extends EventEmitter {
     const mobileUA = new UserAgent({
       deviceCategory: 'mobile'
     });
-    const { screenWidth, viewportWidth, screenHeight } = mobileUA.data;
+    const { screenHeight, screenWidth, viewportWidth, userAgent } = mobileUA.data;
 
     const deviceScaleFactor = screenWidth && viewportWidth 
       ? (screenWidth / viewportWidth).toFixed(1)
@@ -270,7 +270,7 @@ export class ChromiumCDP extends EventEmitter {
       '--touch-events=enabled',
       '--use-mobile-user-agent',
       // User-Agent 库随机生成的信息
-      `--user-agent=${userAgentData.userAgent}`,
+      `--user-agent=${userAgent}`,
       `--device-scale-factor=${deviceScaleFactor}`,
       `--screen-height=${screenHeight}`,
       `--screen-width=${screenWidth}`,
