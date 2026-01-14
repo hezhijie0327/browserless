@@ -57,7 +57,7 @@ export default class ChromiumDownloadPostRoute extends BrowserHTTPRoute {
   that are written for execution inside of the browser. Once your script is finished, any
   downloaded files from Chromium are returned back with the appropriate content-type header.`);
   method = Methods.post;
-  path = [HTTPRoutes.download, HTTPRoutes.chromiumDownload];
+  path = [HTTPRoutes.chromiumDownload, HTTPRoutes.download];
   tags = [APITags.browserAPI];
   async handler(
     req: Request,
@@ -86,7 +86,7 @@ export default class ChromiumDownloadPostRoute extends BrowserHTTPRoute {
       }
 
       const { page } = response;
-      logger.info(`Download function has returned, finding downloads...`);
+      logger.debug(`Download function has returned, finding downloads...`);
       async function checkIfDownloadComplete(): Promise<string | null> {
         if (res.headersSent) {
           logger.trace(
@@ -100,13 +100,13 @@ export default class ChromiumDownloadPostRoute extends BrowserHTTPRoute {
           return checkIfDownloadComplete();
         }
 
-        logger.info(`All files have finished downloading`);
+        logger.debug(`All files have finished downloading`);
 
         return path.join(downloadPath, fileName);
       }
 
       const filePath = await checkIfDownloadComplete();
-      logger.info(`Closing pages.`);
+      logger.debug(`Closing pages.`);
       page.close();
       page.removeAllListeners();
 
@@ -115,7 +115,7 @@ export default class ChromiumDownloadPostRoute extends BrowserHTTPRoute {
           filePath &&
           deleteAsync(filePath, { force: true })
             .then(() => {
-              logger.info(
+              logger.debug(
                 `Successfully deleted downloads from disk at "${filePath}"`,
               );
             })

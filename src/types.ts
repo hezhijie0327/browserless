@@ -373,7 +373,9 @@ export interface CDPLaunchOptions extends BrowserlessLaunch {
   dumpio?: boolean;
   headless?: boolean | 'shell';
   ignoreDefaultArgs?: boolean | string[];
+  /** @deprecated use acceptInsecureCerts field instead */
   ignoreHTTPSErrors?: boolean;
+  acceptInsecureCerts?: boolean;
   slowMo?: number;
   stealth?: boolean;
   timeout?: number;
@@ -542,7 +544,13 @@ export type requestInterceptors = {
    * corresponding responses to use in order to fulfill those requests.
    */
   pattern: string;
-  response: Partial<ResponseForRequest>;
+  response: Partial<Omit<ResponseForRequest, 'body'>> & {
+    /**
+     * A string representation of the body to return. Can be a base64-encoded
+     * string but please omit any leading content-type data (eg "data:image/png;base64,").
+     */
+    body?: string;
+  };
 };
 
 export interface IResourceLoad {
@@ -645,6 +653,7 @@ export const BrowserlessChromeRoutes = {
   ChromeCDPWebSocketRoute: 'ChromeCDPWebSocketRoute',
   ChromeContentPostRoute: 'ChromeContentPostRoute',
   ChromeDownloadPostRoute: 'ChromeDownloadPostRoute',
+  ChromeFunctionConnectWebSocketRoute: 'ChromeFunctionConnectWebSocketRoute',
   ChromeFunctionPostRoute: 'ChromeFunctionPostRoute',
   ChromeJSONListGetRoute: 'ChromeJSONListGetRoute',
   ChromeJSONNewPutRoute: 'ChromeJSONNewPutRoute',
@@ -663,6 +672,7 @@ export const BrowserlessEdgeRoutes = {
   EdgeCDPWebSocketRoute: 'EdgeCDPWebSocketRoute',
   EdgeContentPostRoute: 'EdgeContentPostRoute',
   EdgeDownloadPostRoute: 'EdgeDownloadPostRoute',
+  EdgeFunctionConnectWebSocketRoute: 'EdgeFunctionConnectWebSocketRoute',
   EdgeFunctionPostRoute: 'EdgeFunctionPostRoute',
   EdgeJSONListGetRoute: 'EdgeJSONListGetRoute',
   EdgeJSONNewPutRoute: 'EdgeJSONNewPutRoute',
@@ -681,6 +691,8 @@ export const BrowserlessChromiumRoutes = {
   ChromiumCDPWebSocketRoute: 'ChromiumCDPWebSocketRoute',
   ChromiumContentPostRoute: 'ChromiumContentPostRoute',
   ChromiumDownloadPostRoute: 'ChromiumDownloadPostRoute',
+  ChromiumFunctionConnectWebSocketRoute:
+    'ChromiumFunctionConnectWebSocketRoute',
   ChromiumFunctionPostRoute: 'ChromiumFunctionPostRoute',
   ChromiumJSONListGetRoute: 'ChromiumJSONListGetRoute',
   ChromiumJSONNewPutRoute: 'ChromiumJSONNewPutRoute',

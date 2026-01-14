@@ -28,6 +28,7 @@ import {
   convertIfBase64,
   exists,
   generateDataDir,
+  getFinalPathSegment,
   makeExternalURL,
   noop,
   parseBooleanParam,
@@ -40,6 +41,7 @@ import micromatch from 'micromatch';
 import path from 'path';
 
 export class BrowserManager {
+  protected reconnectionPatterns = ['/devtools/browser', '/function/connect'];
   protected browsers: Map<BrowserInstance, BrowserlessSession> = new Map();
   protected timers: Map<string, NodeJS.Timeout> = new Map();
   protected log = new Logger('browser-manager');
@@ -66,7 +68,7 @@ export class BrowserManager {
 
   protected async removeUserDataDir(userDataDir: string | null) {
     if (userDataDir && (await exists(userDataDir))) {
-      this.log.info(`Deleting data directory "${userDataDir}"`);
+      this.log.debug(`Deleting data directory "${userDataDir}"`);
       await deleteAsync(userDataDir, { force: true }).catch((err) => {
         this.log.error(
           `Error cleaning up user-data-dir "${err}" at ${userDataDir}`,
@@ -121,7 +123,7 @@ export class BrowserManager {
    * When both Chrome and Chromium are installed, defaults to Chromium.
    */
   public async getVersionJSON(logger: Logger): Promise<CDPJSONPayload> {
-    this.log.info(`Launching Chromium to generate /json/version results`);
+    this.log.debug(`Launching Chromium to generate /json/version results`);
     const Browser = (await availableBrowsers).find((InstalledBrowser) =>
       this.chromeBrowsers.some(
         (ChromeBrowser) => InstalledBrowser === ChromeBrowser,
@@ -311,11 +313,11 @@ export class BrowserManager {
     const priorTimer = this.timers.get(session.id);
 
     if (priorTimer) {
-      this.log.info(`Deleting prior keep-until timer for "${session.id}"`);
+      this.log.debug(`Deleting prior keep-until timer for "${session.id}"`);
       global.clearTimeout(priorTimer);
     }
 
-    this.log.info(
+    this.log.debug(
       `${session.numbConnected} Client(s) are currently connected, Keep-until: ${keepUntil}, force: ${force}`,
     );
 
@@ -337,11 +339,11 @@ export class BrowserManager {
     }
 
     if (!keepOpen) {
-      this.log.info(`Closing browser session`);
+      this.log.debug(`Closing browser session`);
       cleanupACtions.push(() => browser.close());
 
       if (session.isTempDataDir) {
-        this.log.info(
+        this.log.debug(
           `Deleting "${session.userDataDir}" user-data-dir and session from memory`,
         );
         this.browsers.delete(browser);
@@ -353,7 +355,7 @@ export class BrowserManager {
   }
 
   public async killSessions(target: string): Promise<void> {
-    this.log.info(`killSessions invoked target: "${target}"`);
+    this.log.debug(`killSessions invoked target: "${target}"`);
     const sessions = Array.from(this.browsers);
     let closed = 0;
     for (const [browser, session] of sessions) {
@@ -362,7 +364,7 @@ export class BrowserManager {
         session.id === target ||
         target === 'all'
       ) {
-        this.log.info(
+        this.log.debug(
           `Closing browser via killSessions BrowserId: "${session.id}", trackingId: "${session.trackingId}"`,
         );
         this.close(browser, session, true);
@@ -397,7 +399,7 @@ export class BrowserManager {
   public async complete(browser: BrowserInstance): Promise<void> {
     const session = this.browsers.get(browser);
     if (!session) {
-      this.log.info(
+      this.log.debug(
         `Couldn't locate session for browser, proceeding with close`,
       );
       return browser.close();
@@ -452,7 +454,7 @@ export class BrowserManager {
         throw new BadRequest(`trackingId cannot be the reserved word "all"`);
       }
 
-      this.log.info(`Assigning session trackingId "${trackingId}"`);
+      this.log.debug(`Assigning session trackingId "${trackingId}"`);
     }
 
     const decodedLaunchOptions = convertIfBase64(
@@ -461,12 +463,17 @@ export class BrowserManager {
     let parsedLaunchOptions: BrowserServerOptions | CDPLaunchOptions;
 
     // Handle browser re-connects here
-    if (req.parsed.pathname.includes('/devtools/browser')) {
+    if (
+      this.reconnectionPatterns.some((p) => req.parsed.pathname.includes(p))
+    ) {
       const sessions = Array.from(this.browsers);
-      const id = req.parsed.pathname.split('/').pop() as string;
-      const found = sessions.find(([b]) =>
-        b.wsEndpoint()?.includes(req.parsed.pathname),
-      );
+      const id = getFinalPathSegment(req.parsed.pathname);
+      if (!id) {
+        throw new NotFound(
+          `Couldn't locate browser ID from path "${req.parsed.pathname}"`,
+        );
+      }
+      const found = sessions.find(([b]) => b.wsEndpoint()?.includes(id));
 
       if (found) {
         const [browser, session] = found;
@@ -482,8 +489,8 @@ export class BrowserManager {
 
     // Handle page connections here
     if (req.parsed.pathname.includes('/devtools/page')) {
-      const id = req.parsed.pathname.split('/').pop() as string;
-      if (!id.includes(BLESS_PAGE_IDENTIFIER)) {
+      const id = getFinalPathSegment(req.parsed.pathname);
+      if (!id?.includes(BLESS_PAGE_IDENTIFIER)) {
         const browsers = Array.from(this.browsers).map(([browser]) => browser);
         const allPages = await Promise.all(
           browsers
@@ -541,6 +548,17 @@ export class BrowserManager {
       ...routerOptions,
       ...parsedLaunchOptions,
     };
+    const proxyServerParam = req.parsed.searchParams.get('--proxy-server');
+    if (proxyServerParam) {
+      const existingArgs = launchOptions.args || [];
+      const filteredArgs = existingArgs.filter(
+        (arg) => !arg.includes('--proxy-server='),
+      );
+      launchOptions.args = [
+        ...filteredArgs,
+        `--proxy-server=${proxyServerParam}`,
+      ];
+    }
 
     const manualUserDataDir =
       launchOptions.args
@@ -564,6 +582,18 @@ export class BrowserManager {
     const proxyServerArg = launchOptions.args?.find((arg) =>
       arg.includes('--proxy-server='),
     );
+
+    /**
+     * Handle deprecated launch options
+     */
+    if (Object.hasOwn(launchOptions, 'ignoreHTTPSErrors')) {
+      if (!Object.hasOwn(launchOptions, 'acceptInsecureCerts')) {
+        (launchOptions as CDPLaunchOptions).acceptInsecureCerts = (
+          launchOptions as CDPLaunchOptions
+        ).ignoreHTTPSErrors;
+      }
+      delete (launchOptions as CDPLaunchOptions).ignoreHTTPSErrors;
+    }
 
     /**
      * If it is a playwright request
@@ -598,8 +628,9 @@ export class BrowserManager {
     });
     await this.hooks.browser({ browser, req });
 
+    const sessionId = getFinalPathSegment(browser.wsEndpoint()!)!;
     const session: BrowserlessSession = {
-      id: browser.wsEndpoint()?.split('/').pop() as string,
+      id: sessionId,
       initialConnectURL:
         path.join(req.parsed.pathname, req.parsed.search) || '',
       isTempDataDir: !manualUserDataDir,
@@ -612,6 +643,12 @@ export class BrowserManager {
       ttl: 0,
       userDataDir,
     };
+
+    // Update logger with session context now that we have tracking ID and session ID
+    logger.setSessionContext({
+      trackingId,
+      sessionId,
+    });
 
     this.browsers.set(browser, session);
 

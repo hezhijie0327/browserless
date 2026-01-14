@@ -19,6 +19,7 @@ import {
   bestAttemptCatch,
   contentTypes,
   dedent,
+  isBase64Encoded,
   noop,
   rejectRequestPattern,
   rejectResourceTypes,
@@ -39,7 +40,9 @@ export interface BodySchema {
   emulateMediaType?: Parameters<Page['emulateMediaType']>[0];
   gotoOptions?: Parameters<Page['goto']>[1];
   html?: Parameters<Page['setContent']>[0];
-  options?: Parameters<Page['pdf']>[0];
+  options?: Parameters<Page['pdf']>[0] & {
+    fullPage?: boolean;
+  };
   rejectRequestPattern?: rejectRequestPattern[];
   rejectResourceTypes?: rejectResourceTypes[];
   requestInterceptors?: Array<requestInterceptors>;
@@ -77,7 +80,7 @@ export default class ChromiumPDFPostRoute extends BrowserHTTPRoute {
     selectors, timers and more.
   `);
   method = Methods.post;
-  path = [HTTPRoutes.pdf, HTTPRoutes.chromiumPdf];
+  path = [HTTPRoutes.chromiumPdf, HTTPRoutes.pdf];
   tags = [APITags.browserAPI];
   async handler(
     req: Request,
@@ -125,6 +128,10 @@ export default class ChromiumPDFPostRoute extends BrowserHTTPRoute {
 
     if (!content) {
       throw new BadRequest(`One of "url" or "html" properties are required.`);
+    }
+
+    if (options?.fullPage && (options?.height || options?.format)) {
+      throw new BadRequest(`"fullPage" option cannot be used with "height" or "format" options.`);
     }
 
     const page = (await browser.newPage()) as UnwrapPromise<
@@ -179,7 +186,14 @@ export default class ChromiumPDFPostRoute extends BrowserHTTPRoute {
           req.url().match(r.pattern),
         );
         if (interceptor) {
-          return req.respond(interceptor.response);
+          return req.respond({
+            ...interceptor.response,
+            body: interceptor.response.body
+              ? isBase64Encoded(interceptor.response.body as string)
+                ? Buffer.from(interceptor.response.body, 'base64')
+                : interceptor.response.body
+              : undefined,
+          });
         }
         return req.continue();
       });
@@ -236,6 +250,28 @@ export default class ChromiumPDFPostRoute extends BrowserHTTPRoute {
       }
     }
 
+
+    if (options?.fullPage) {
+      const height = await page
+        .evaluate(() => {
+          const body = document.body;
+          const html = document.documentElement;
+
+          return Math.max(
+            body.scrollHeight,
+            body.offsetHeight,
+            html.clientHeight,
+            html.scrollHeight,
+            html.offsetHeight,
+          );
+        })
+        .catch((e) => {
+          logger.warn('Failed to evaluate page height:', e);
+          return 480; // default Puppeteer viewport height
+        });
+      options.height = height;
+    }
+
     const pdfStream = await page.createPDFStream(options);
     const writableStream = new WritableStream({
       write(chunk) {
@@ -249,6 +285,6 @@ export default class ChromiumPDFPostRoute extends BrowserHTTPRoute {
 
     page.close().catch(noop);
 
-    logger.info('PDF API request completed');
+    logger.debug('PDF API request completed');
   }
 }

@@ -11,8 +11,8 @@ import {
   contentTypes,
   convertIfBase64,
   exists,
+  getFinalPathSegment,
   getTokenFromRequest,
-  id,
   makeExternalURL,
   mimeTypes,
 } from '@browserless.io/browserless';
@@ -63,17 +63,23 @@ export default (config: Config, logger: Logger, options: HandlerOptions = {}) =>
 
     const context = JSON.stringify(rawContext);
     const code = convertIfBase64(rawCode);
-    const browserWSEndpoint = browser.publicWSEndpoint(
-      getTokenFromRequest(req) ?? '',
-    );
+    const privateWSEndpoint = browser.wsEndpoint();
 
-    if (!browserWSEndpoint) {
+    if (!privateWSEndpoint) {
       throw new ServerError(
         `No browser endpoint was found, is the browser running?`,
       );
     }
 
-    const functionCodeJS = `browserless-function-${id()}.js`;
+    const browserID = getFinalPathSegment(privateWSEndpoint)!;
+    const browserWSEndpoint = makeExternalURL(
+      config.getExternalWebSocketAddress(),
+      'function',
+      'connect',
+      browserID,
+      '?token=' + getTokenFromRequest(req),
+    );
+    const functionCodeJS = `browserless-function-${browserID}.js`;
     const page = (await browser.newPage()) as UnwrapPromise<
       ReturnType<ChromiumCDP['newPage']>
     >;
@@ -87,7 +93,7 @@ export default (config: Config, logger: Logger, options: HandlerOptions = {}) =>
      */
     page.on('request', async (request) => {
       const requestUrl = request.url();
-      logger.info(`Outbound Page Request: "${requestUrl}"`);
+      logger.trace(`Outbound Page Request: "${requestUrl}"`);
       if (requestUrl.startsWith(functionRequestPath)) {
         const filename = path.basename(requestUrl);
         if (filename === functionCodeJS) {
@@ -115,7 +121,7 @@ export default (config: Config, logger: Logger, options: HandlerOptions = {}) =>
           status: 404,
         });
       }
-      logger.info(`Request: "${requestUrl}" no responder found, continuing...`);
+      logger.trace(`Request: "${requestUrl}" no responder found, continuing...`);
       return request.continue();
     });
 

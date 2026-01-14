@@ -46,6 +46,17 @@ const sortSwaggerRequiredAlpha = (prop, otherProp) => {
   return Number(otherProp.required) - Number(prop.required);
 };
 
+const cleanupAbsolutePaths = (swaggerJSON) => {
+  const jsonString = JSON.stringify(swaggerJSON);
+
+  const cleanedString = jsonString.replace(
+    /"\$ref":\s*"#\/definitions\/import\([^)]+\)\.([^"]+)"/g,
+    '"$ref": "#/definitions/$1"',
+  );
+
+  return JSON.parse(cleanedString);
+};
+
 const buildOpenAPI = async (
   externalHTTPRoutes = [],
   externalWebSocketRoutes = [],
@@ -108,9 +119,9 @@ const buildOpenAPI = async (
         const query = routeModule.replace('.js', '.query.json');
         const response = routeModule.replace('.js', '.response.json');
         const isWebSocket = routeModule.includes('/ws/') || name.endsWith('ws');
-        const paths = (Array.isArray(route.path) ? route.path : [route.path])
-          .sort((a, b) => b.length - a.length)
-          .map((p) => p.replace(/\?\(\/\)/g, ''));
+        const paths = (
+          Array.isArray(route.path) ? route.path : [route.path]
+        ).map((p) => p === '?(/)' ? '/' : p.replace(/\?\(\/\)/g, ''));
         const [path, ...alternativePaths] = paths;
 
         const {
@@ -298,7 +309,13 @@ const buildOpenAPI = async (
     JSON.stringify(swaggerJSON, null, '  '),
   );
   swaggerJSON.info.description = readme + `\n# Changelog\n` + changelog;
-  await fs.writeFile(swaggerJSONPath, JSON.stringify(swaggerJSON, null, '  '));
+
+  const cleanedSwaggerJSON = cleanupAbsolutePaths(swaggerJSON);
+
+  await fs.writeFile(
+    swaggerJSONPath,
+    JSON.stringify(cleanedSwaggerJSON, null, '  '),
+  );
 };
 
 export default buildOpenAPI;

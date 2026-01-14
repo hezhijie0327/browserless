@@ -186,10 +186,10 @@ export class HTTPServer extends EventEmitter {
     const route = await this.router.getRouteForHTTPRequest(req);
 
     if (!route) {
-      this.logger.error(
+      this.logger.warn(
         `No matching HTTP route handler for "${req.method}: ${req.parsed.href}"`,
       );
-      writeResponse(res, 404, 'Not Found');
+      writeResponse(res, 404, 'Not Found: Please verify the endpoint URL, the HTTP method (e.g., POST, GET), and check that your Content-Type header is supported (e.g., application/json). See: https://docs.browserless.io/rest-apis/intro');
       return Promise.resolve();
     }
 
@@ -289,8 +289,8 @@ export class HTTPServer extends EventEmitter {
             )
             .join('\n');
 
-          this.logger.error(
-            `HTTP body contain errors sending 400:${errorDetails}`,
+          this.logger.warn(
+            `HTTP body validation failed:${errorDetails}`,
           );
 
           writeResponse(
@@ -384,8 +384,8 @@ export class HTTPServer extends EventEmitter {
               )
               .join('\n');
 
-            this.logger.error(
-              `WebSocket query-params contain errors sending 400:${errorDetails}`,
+            this.logger.warn(
+              `WebSocket query-params validation failed:${errorDetails}`,
             );
 
             writeResponse(
@@ -416,7 +416,7 @@ export class HTTPServer extends EventEmitter {
         .catch((e) => this.handleErrorRequest(e, socket));
     }
 
-    this.logger.error(
+    this.logger.warn(
       `No matching WebSocket route handler for "${req.parsed.href}"`,
     );
     return writeResponse(socket, 404, 'Not Found');
@@ -424,7 +424,7 @@ export class HTTPServer extends EventEmitter {
 
   public async shutdown(): Promise<void> {
     this.logger.info(`HTTP Server is shutting down`);
-    await new Promise((r) => this.server.close(r));
+    await new Promise((r) => this.server?.close(r));
 
     if (this.server) {
       this.server.removeAllListeners();

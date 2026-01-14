@@ -1,6 +1,108 @@
-# [Latest](https://github.com/browserless/chrome/compare/v2.33.0...main)
+# [Latest](https://github.com/browserless/chrome/compare/v2.38.2...main)
+
+# [v2.38.2](https://github.com/browserless/browserless/compare/v2.38.1...v2.38.2)
+
+- Standardizes on how path parsing works internally, exports the utility as well.
+- Supports the following libraries and browsers:
+  - puppeteer-core: `24.26.1`
+  - playwright-core: `1.56.1`, `1.55.1`, `1.54.2`, `1.53.2`, and `1.52.0`.
+  - Chromium: `141.0.7390.37`
+  - Chrome: `141.0.7390.123` (amd64 only)
+  - Firefox: `142.0.1`
+  - Webkit: `26.0`
+  - Edge: `141.0.3537.99` (amd64 only)
+
+# [v2.38.1](https://github.com/browserless/browserless/compare/v2.38.0...v2.38.1)
 
 - Dependency updates.
+- Bugfix when a trailing slash is present in /function API call.
+- Supports the following libraries and browsers:
+  - puppeteer-core: `24.26.1`
+  - playwright-core: `1.56.1`, `1.55.1`, `1.54.2`, `1.53.2`, and `1.52.0`.
+  - Chromium: `141.0.7390.37`
+  - Chrome: `141.0.7390.123` (amd64 only)
+  - Firefox: `142.0.1`
+  - Webkit: `26.0`
+  - Edge: `141.0.3537.99` (amd64 only)
+
+# [v2.38.0](https://github.com/browserless/chrome/compare/v2.37.1...v2.38.0)
+
+- Dependency updates.
+- Supports the following libraries and browsers:
+  - puppeteer-core: `24.26.1`
+  - playwright-core: `1.56.1`, `1.55.1`, `1.54.2`, `1.53.2`, and `1.52.0`.
+  - Chromium: `141.0.7390.37`
+  - Chrome: `141.0.7390.123` (amd64 only)
+  - Firefox: `142.0.1`
+  - Webkit: `26.0`
+  - Edge: `141.0.3537.99` (amd64 only)
+
+# [v2.37.1](https://github.com/browserless/chrome/compare/v2.37.1...v2.37.0)
+
+- Dependency updates.
+- Handling of `ignoreHTTPSErrors` to `acceptInsecureCerts`.
+- Smaller fixes, testing updates, and graceful shutdown handling.
+- Supports the following libraries and browsers:
+  - puppeteer-core: `24.23.0`
+  - playwright-core: `1.55.1`, `1.54.2`, `1.53.2`, `1.52.0`, and `1.51.1`.
+  - Chromium: `140.0.7339.16`
+  - Chrome: `141.0.7390.66` (amd64 only)
+  - Firefox: `141.0`
+  - Webkit: `26.0`
+  - Edge: `141.0.3537.57` (amd64 only)
+
+# [v2.37.0](https://github.com/browserless/chrome/compare/v2.36.0...v2.37.0)
+
+- Dependency updates.
+- Adds a new `/function/connect` route to distinguish function API calls and not have them add to concurrency.
+- Fix installs in SDK projects not working.
+- Supports the following libraries and browsers:
+  - puppeteer-core: `24.22.3`
+  - playwright-core: `1.55.1`, `1.54.2`, `1.53.2`, `1.52.0`, and `1.51.1`.
+  - Chromium: `140.0.7339.16`
+  - Chrome: `140.0.7339.214` (amd64 only)
+  - Firefox: `141.0`
+  - Webkit: `26.0`
+  - Edge: `140.0.3485.94` (amd64 only)
+
+# [v2.36.0](https://github.com/browserless/chrome/compare/v2.34.1...v2.36.0)
+
+- Dependency updates.
+- Updates base image to Ubuntu `24.04`.
+- Updates NodeJS to `24.8.0`.
+- Move to `npm ci` for automated tests and release processes.
+- Small cleanup in dockerfiles for consistency.
+- Added a `npm run coverage` command for determining areas of code needing coverage.
+- `bestAttempt` fixes in the `/scrape` API.
+- Fixes a few OpenAPI issues in the swagger.json manifests.
+- Fixes issues where install-adblock can fail.
+- Updated messaging around concurrency limits being reached.
+- Few more unit-tests.
+- Supports the following libraries and browsers:
+  - puppeteer-core: `24.22.0`
+  - playwright-core: `1.55.0`, `1.54.2`, `1.53.2`, `1.52.0`, and `1.51.1`.
+  - Chromium: `140.0.7339.16`
+  - Chrome: `140.0.7339.186` (amd64 only)
+  - Firefox: `141.0`
+  - Webkit: `26.0`
+  - Edge: `140.0.3485.81` (amd64 only)
+
+# [v2.34.1](https://github.com/browserless/chrome/compare/v2.34.0...v2.34.1)
+
+- Dependency updates.
+- Fixes an issue with absolute path in swagger.json docs.
+
+# [v2.34.0](https://github.com/browserless/chrome/compare/v2.33.0...v2.34.0)
+
+- Dependency updates.
+- README spelling fixes.
+- Bumps `puppeteer-core` to `24.16.0`.
+- Bumps `playwright-core` to `1.54.2`.
+- Updates the /pressure API to return a `503` error when under load and the `Accept` header is `text/plain`. All other headers for "Accept" are treated similarly.
+- Internally, when Authorization is sent via the `token` query-parameter, browserless now migrates it to a more secure `Authorization` header before processing the request. This prevents accidental logging in source as well as SDK projects.
+- Supports a `before` hook in routes so that pre-route logic can be applied before the request is handled by the route.
+- Fixes an issue in API's where a `requestInterceptor` has a `body` with base64 encoded content. This is now properly handled and fulfills the request.
+- Minor internal changes and spec file updates.
 
 # [v2.33.0](https://github.com/browserless/chrome/compare/v2.32.1...v2.33.0)
 

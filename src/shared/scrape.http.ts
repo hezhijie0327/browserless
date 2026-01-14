@@ -25,6 +25,7 @@ import {
   contentTypes,
   debugScreenshotOpts,
   dedent,
+  isBase64Encoded,
   jsonResponse,
   noop,
   rejectRequestPattern,
@@ -156,7 +157,10 @@ export interface ResponseSchema {
   } | null;
 }
 
-const scrape = async (elements: ScrapeElementSelector[]) => {
+const scrape = async (
+  elements: ScrapeElementSelector[],
+  bestAttempt = false,
+) => {
   const wait = (selector: string, timeout = 30000) => {
     return new Promise<void>((resolve, reject) => {
       const timeoutId = setTimeout(() => {
@@ -174,9 +178,23 @@ const scrape = async (elements: ScrapeElementSelector[]) => {
     });
   };
 
-  await Promise.all(
-    elements.map(({ selector, timeout }) => wait(selector, timeout)),
-  );
+  if (bestAttempt) {
+    const results = await Promise.allSettled(
+      elements.map(({ selector, timeout }) => wait(selector, timeout)),
+    );
+
+    results.forEach((result, index) => {
+      if (result.status === 'rejected') {
+        console.warn(
+          `Selector "${elements[index].selector}" failed: ${result.reason.message}`,
+        );
+      }
+    });
+  } else {
+    await Promise.all(
+      elements.map(({ selector, timeout }) => wait(selector, timeout)),
+    );
+  }
 
   return elements.map(({ selector }) => {
     const $els = [...document.querySelectorAll(selector)] as HTMLElement[];
@@ -214,7 +232,7 @@ export default class ChromiumScrapePostRoute extends BrowserHTTPRoute {
     property. Responds with an array of JSON objects.
   `);
   method = Methods.post;
-  path = [HTTPRoutes.scrape, HTTPRoutes.chromiumScrape];
+  path = [HTTPRoutes.chromiumScrape, HTTPRoutes.scrape];
   tags = [APITags.browserAPI];
   async handler(
     req: Request,
@@ -286,7 +304,15 @@ export default class ChromiumScrapePostRoute extends BrowserHTTPRoute {
           method: req.method(),
           url: req.url(),
         });
-        req.continue();
+        if (
+          !(
+            rejectRequestPattern.length ||
+            requestInterceptors.length ||
+            rejectResourceTypes.length
+          )
+        ) {
+          req.continue();
+        }
       });
 
       page.on('response', (res) => {
@@ -335,8 +361,8 @@ export default class ChromiumScrapePostRoute extends BrowserHTTPRoute {
 
       page.on('request', (req) => {
         if (
-          !!rejectRequestPattern.find((pattern) => req.url().match(pattern)) ||
-          rejectResourceTypes.includes(req.resourceType())
+          rejectResourceTypes.includes(req.resourceType()) ||
+          !!rejectRequestPattern.find((pattern) => req.url().match(pattern))
         ) {
           logger.debug(`Aborting request ${req.method()}: ${req.url()}`);
           return req.abort();
@@ -345,7 +371,14 @@ export default class ChromiumScrapePostRoute extends BrowserHTTPRoute {
           req.url().match(r.pattern),
         );
         if (interceptor) {
-          return req.respond(interceptor.response);
+          return req.respond({
+            ...interceptor.response,
+            body: interceptor.response.body
+              ? isBase64Encoded(interceptor.response.body as string)
+                ? Buffer.from(interceptor.response.body, 'base64')
+                : interceptor.response.body
+              : undefined,
+          });
         }
         return req.continue();
       });
@@ -402,12 +435,14 @@ export default class ChromiumScrapePostRoute extends BrowserHTTPRoute {
       }
     }
 
-    const data = await page.evaluate(scrape, elements).catch((e) => {
-      if (e.message.includes('Timed out')) {
-        throw new Timeout(e);
-      }
-      throw e;
-    });
+    const data = await page
+      .evaluate(scrape, elements, bestAttempt)
+      .catch((e) => {
+        if (e.message.includes('Timed out')) {
+          throw new Timeout(e);
+        }
+        throw e;
+      });
 
     const [debugHTML, screenshot, pageCookies] = await Promise.all([
       debugOpts?.html ? (page.content() as Promise<string>) : null,
@@ -437,7 +472,7 @@ export default class ChromiumScrapePostRoute extends BrowserHTTPRoute {
 
     page.close().catch(noop);
 
-    logger.info('Scrape API request completed');
+    logger.debug('Scrape API request completed');
 
     return jsonResponse(res, 200, response, false);
   }
