@@ -907,6 +907,13 @@ export const getCDPClient = (page: Page): CDPSession => {
   return typeof c === 'function' ? c.call(page) : c;
 };
 
+export const privacyBadgerPath = path.join(
+  __dirname,
+  '..',
+  'extensions',
+  'privacy_badger',
+);
+
 export const ublockLitePath = path.join(
   __dirname,
   '..',
