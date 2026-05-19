@@ -71,10 +71,38 @@ class BasePlaywright extends EventEmitter {
       args.push('--headless=new');
     }
 
+    const patchOptions = [
+      // 浏览器参数
+      '--disable-crashpad',
+      '--disable-crashpad-for-testing',
+      '--disable-crashpad-forwarding',
+      '--disable-in-process-stack-traces',
+      '--no-default-browser-check',
+
+      // 反检测增强
+      '--disable-blink-features=AutomationControlled',
+      '--disable-features=LocalNetworkAccessChecks,WebRtcHideLocalIpsWithMdns',
+      '--enforce-webrtc-ip-permission-check',
+      '--exclude-switches=enable-automation',
+      '--force-webrtc-ip-handling-policy',
+      '--no-pings',
+      '--webrtc-ip-handling-policy=disable_non_proxied_udp',
+
+      // 性能优化
+      '--aggressive-cache-discard',
+
+      // 容器环境
+      '--disable-setuid-sandbox',
+      '--no-zygote',
+      '--single-process',
+    ];
+
     return {
       ...opts,
       args: [
         ...args,
+        // 注入补充 Patch 参数
+        ...patchOptions,
         // Playwright 1.57+ uses Chrome For Test, which has stricter security than Chromium.
         // This is needed to allow WebSocket connections to localhost.
         `--disable-features=LocalNetworkAccessChecks`,
