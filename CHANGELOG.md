@@ -1,5 +1,80 @@
 # Changelog
 
+## [2.55.0](https://github.com/browserless/browserless/compare/v2.54.2...v2.55.0) (2026-07-14)
+
+
+### Features
+
+* support per-route error codes in Swagger build pipeline ([#5480](https://github.com/browserless/browserless/issues/5480)) ([5c12843](https://github.com/browserless/browserless/commit/5c12843535cec650aee7478a34341cca7b0193bc))
+* **types:** make route handler arg types generic for SDK extension ([#5491](https://github.com/browserless/browserless/issues/5491)) ([674d221](https://github.com/browserless/browserless/commit/674d221fa7bf5e42d82713c9e05dbb7a87a1cb79))
+
+
+### Bug Fixes
+
+* replace unmaintained puppeteer-extra stealth chain with [@zorilla](https://github.com/zorilla) forks ([#5501](https://github.com/browserless/browserless/issues/5501)) ([3792f07](https://github.com/browserless/browserless/commit/3792f070bf8fe4ecc73acbeef6a4a767709768b2))
+* retry page.content() on navigation teardown in content API (SCRAP-604) ([#5499](https://github.com/browserless/browserless/issues/5499)) ([d2388de](https://github.com/browserless/browserless/commit/d2388de968bc80be517eb16c012e300d405170b0))
+
+<!-- browser-versions:start -->
+
+### Supported Libraries & Browsers
+
+- puppeteer-core: `25.3.0`
+- playwright-core: `1.61.1`, `1.60.0`, `1.59.1`, `1.58.2`, and `1.57.0`.
+- Chromium: `149.0.7827.55`
+- Chrome: `150.0.7871.114` (amd64 only)
+- Firefox: `151.0`
+- Webkit: `26.5`
+- Edge: `150.0.4078.65` (amd64 only)
+
+<!-- browser-versions:end -->
+
+## [2.54.2](https://github.com/browserless/browserless/compare/v2.54.1...v2.54.2) (2026-06-26)
+
+
+### Bug Fixes
+
+* log expected request/response conditions at debug, not warn ([#5474](https://github.com/browserless/browserless/issues/5474)) ([f2ab247](https://github.com/browserless/browserless/commit/f2ab247a3bf0e44eafe849656f56a1b96b652bbf))
+
+<!-- browser-versions:start -->
+
+### Supported Libraries & Browsers
+
+- puppeteer-core: `25.2.0`
+- playwright-core: `1.61.1`, `1.60.0`, `1.59.1`, `1.58.2`, and `1.57.0`.
+- Chromium: `149.0.7827.55`
+- Chrome: `149.0.7827.196` (amd64 only)
+- Firefox: `151.0`
+- Webkit: `26.5`
+- Edge: `149.0.4022.80` (amd64 only)
+
+<!-- browser-versions:end -->
+
+## [2.54.1](https://github.com/browserless/browserless/compare/v2.54.0...v2.54.1) (2026-06-22)
+
+
+### Bug Fixes
+
+* **ci:** isolate per-image manifest merges so one image can't block latest ([#5462](https://github.com/browserless/browserless/issues/5462)) ([d976361](https://github.com/browserless/browserless/commit/d9763618a12cfc9608ca27c09244b1c4124a2458))
+
+
+### Build System & Runtime
+
+* bump Node to 24.17.0 and npm to 11.17.0 ([#5464](https://github.com/browserless/browserless/issues/5464)) ([05abdae](https://github.com/browserless/browserless/commit/05abdaebd2cbe5b4a43cadacd5358d00a8904c14))
+
+<!-- browser-versions:start -->
+
+### Supported Libraries & Browsers
+
+- puppeteer-core: `25.1.0`
+- playwright-core: `1.61.0`, `1.60.0`, `1.59.1`, `1.58.2`, and `1.57.0`.
+- Chromium: `149.0.7827.55`
+- Chrome: `149.0.7827.155` (amd64 only)
+- Firefox: `151.0`
+- Webkit: `26.5`
+- Edge: `149.0.4022.69` (amd64 only)
+
+<!-- browser-versions:end -->
+
 ## [2.54.0](https://github.com/browserless/browserless/compare/v2.53.1...v2.54.0) (2026-06-18)
 
 

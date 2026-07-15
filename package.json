@@ -1,6 +1,6 @@
 {
   "name": "@browserless.io/browserless",
-  "version": "2.54.0",
+  "version": "2.55.0",
   "license": "SSPL",
   "description": "The browserless platform",
   "author": "browserless.io",
@@ -39,7 +39,8 @@
     "prettier": "prettier '{src,functions,scripts,bin,external,.github}/**/*.{js,ts,json,yml,yaml,md}' --log-level error --write",
     "test": "npm run build:tests && cross-env DEBUG=quiet mocha",
     "coverage": "npm run build:ts && c8 --reporter=text --reporter=html --reporter=lcov cross-env DEBUG=quiet mocha",
-    "start": "env-cmd -f .env node build"
+    "start": "env-cmd -f .env node build",
+    "prepare": "husky"
   },
   "files": [
     "assets/*",
@@ -56,6 +57,8 @@
     "tsconfig.json"
   ],
   "dependencies": {
+    "@zorilla/puppeteer-extra": "^1.0.2",
+    "@zorilla/puppeteer-extra-plugin-stealth": "^1.0.4",
     "ajv": "^8.20.0",
     "debug": "^4.4.1",
     "del": "^8.0.1",
@@ -69,13 +72,11 @@
     "playwright-1.58": "npm:playwright-core@1.58.2",
     "playwright-1.59": "npm:playwright-core@1.59.1",
     "playwright-1.60": "npm:playwright-core@1.60.0",
-    "playwright-core": "1.61.0",
-    "puppeteer-core": "25.1.0",
-    "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "playwright-core": "1.61.1",
+    "puppeteer-core": "25.3.0",
     "queue": "^7.0.0",
-    "systeminformation": "^5.31.7",
-    "tar-fs": "^3.1.2",
+    "systeminformation": "^5.31.16",
+    "tar-fs": "^3.1.3",
     "ws": "^8.18.0"
   },
   "devDependencies": {
@@ -85,22 +86,24 @@
     "@types/http-proxy": "^1.17.17",
     "@types/micromatch": "^4.0.10",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^25.9.3",
-    "@types/sinon": "^21.0.1",
+    "@types/node": "^26.1.1",
+    "@types/sinon": "^22.0.0",
     "@types/ws": "^8.5.13",
-    "@typescript-eslint/eslint-plugin": "^8.61.1",
+    "@typescript-eslint/eslint-plugin": "^8.63.0",
     "@typescript-eslint/parser": "^8.61.1",
     "c8": "^11.0.0",
     "chai": "^6.2.2",
     "cross-env": "^10.1.0",
     "env-cmd": "^11.0.0",
     "esbuild": "^0.28.1",
-    "esbuild-plugins-node-modules-polyfill": "^1.8.1",
-    "eslint": "^10.5.0",
+    "esbuild-plugins-node-modules-polyfill": "^1.8.2",
+    "eslint": "^10.7.0",
     "gunzip-maybe": "^1.4.2",
-    "marked": "^18.0.5",
-    "mocha": "^12.0.0-beta-10",
-    "prettier": "^3.8.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.8",
+    "marked": "^18.0.6",
+    "mocha": "^12.0.0-rc.1",
+    "prettier": "3.9.5",
     "sinon": "^22.0.0",
     "typescript": "^6.0.3",
     "typescript-json-schema": "^0.67.3"
@@ -120,7 +123,7 @@
   },
   "engines": {
     "node": ">=24",
-    "npm": "^11.7.0"
+    "npm": ">=11.10.0"
   },
   "mocha": {
     "bail": true,
@@ -136,5 +139,8 @@
     "trailingComma": "all",
     "singleQuote": true,
     "printWidth": 80
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
   }
 }

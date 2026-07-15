@@ -19,14 +19,22 @@ import { Duplex } from 'stream';
 import { EventEmitter } from 'events';
 // 引入 adblocker 插件（使用 Ghostery 的实现）
 import { PuppeteerBlocker } from '@ghostery/adblocker-puppeteer';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+import StealthPlugin from '@zorilla/puppeteer-extra-plugin-stealth';
+import { addExtra } from '@zorilla/puppeteer-extra';
 import getPort from 'get-port';
 import httpProxy from 'http-proxy';
 import path from 'path';
 import playwright from 'playwright-core';
-import puppeteerStealth from 'puppeteer-extra';
 
-puppeteerStealth.use(StealthPlugin());
+// @zorilla/puppeteer-extra's types still expect puppeteer's long-removed
+// createBrowserFetcher and re-declare their own plugin interface; at runtime
+// only launch/connect/defaultArgs/executablePath are used, so the casts are safe.
+const puppeteerStealth = addExtra(
+  puppeteer as unknown as Parameters<typeof addExtra>[0],
+);
+puppeteerStealth.use(
+  StealthPlugin() as unknown as Parameters<typeof puppeteerStealth.use>[0],
+);
 
 export class ChromiumCDP extends EventEmitter {
   protected config: Config;
