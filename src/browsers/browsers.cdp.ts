@@ -10,16 +10,18 @@ import {
   findBlockedNavigationUrl,
   noop,
   once,
-  // 引入 Privacy Badger 位置
+  // <PATCH>Privacy Badger</PATCH>
   privacyBadgerPath,
+  // <PATCH>Privacy Badger</PATCH>
   ublockLitePath,
 } from '@browserless.io/browserless';
 import puppeteer, { Browser, Page, Target } from 'puppeteer-core';
 import { Duplex } from 'stream';
 import { EventEmitter } from 'events';
-// 引入 adblocker 插件（使用 Zorilla 的 puppeteer-extra 插件封装）
+// <PATCH>@zorilla/puppeteer-extra-plugin-adblocker</PATCH>
 import { DEFAULT_INTERCEPT_RESOLUTION_PRIORITY } from 'puppeteer'
 import AdblockerPlugin from '@zorilla/puppeteer-extra-plugin-adblocker';
+// <PATCH>@zorilla/puppeteer-extra-plugin-adblocker</PATCH>
 import StealthPlugin from '@zorilla/puppeteer-extra-plugin-stealth';
 import { addExtra } from '@zorilla/puppeteer-extra';
 import getPort from 'get-port';
@@ -217,7 +219,7 @@ export class ChromiumCDP extends EventEmitter {
     this.port = await getPort();
     this.logger.debug(`${this.constructor.name} got open port ${this.port}`);
 
-    // 启用 AdblockerPlugin 插件，屏蔽广告与追踪
+    // <PATCH>@zorilla/puppeteer-extra-plugin-adblocker</PATCH>
     if (this.blockAds) {
       puppeteerStealth.use(
         AdblockerPlugin({
@@ -227,6 +229,7 @@ export class ChromiumCDP extends EventEmitter {
         }) as unknown as Parameters<typeof puppeteerStealth.use>[0],
       );
     }
+    // <PATCH>@zorilla/puppeteer-extra-plugin-adblocker</PATCH>
 
     const extensionLaunchArgs = options.args?.find((a) =>
       a.startsWith('--load-extension'),
@@ -240,8 +243,9 @@ export class ChromiumCDP extends EventEmitter {
     );
 
     const extensions = [
-      // 引入 Privacy Badger 插件
+      // <PATCH>@zorilla/puppeteer-extra-plugin-adblocker</PATCH>
       this.blockAds ? privacyBadgerPath : null,
+      // <PATCH>@zorilla/puppeteer-extra-plugin-adblocker</PATCH>
       this.blockAds ? ublockLitePath : null,
       extensionLaunchArgs ? extensionLaunchArgs.split('=')[1] : null,
     ].filter((_) => !!_);
@@ -266,15 +270,14 @@ export class ChromiumCDP extends EventEmitter {
       }
     }
 
+    // <PATCH>Browser Options</PATCH>
     const patchOptions = [
-      // 浏览器参数
       '--disable-crashpad',
       '--disable-crashpad-for-testing',
       '--disable-crashpad-forwarding',
       '--disable-in-process-stack-traces',
       '--no-default-browser-check',
 
-      // 反检测增强
       '--disable-blink-features=AutomationControlled',
       '--disable-features=LocalNetworkAccessChecks,WebRtcHideLocalIpsWithMdns',
       '--enforce-webrtc-ip-permission-check',
@@ -283,14 +286,13 @@ export class ChromiumCDP extends EventEmitter {
       '--no-pings',
       '--webrtc-ip-handling-policy=disable_non_proxied_udp',
 
-      // 性能优化
       '--aggressive-cache-discard',
 
-      // 容器环境
       '--disable-setuid-sandbox',
       '--no-zygote',
       '--single-process',
     ];
+    // <PATCH>Browser Options</PATCH>
 
     const finalOptions = {
       ...options,
@@ -300,8 +302,9 @@ export class ChromiumCDP extends EventEmitter {
         // Playwright 1.57+ uses Chrome For Test, which has stricter security than Chromium.
         // This is needed to allow WebSocket connections to localhost.
         `--disable-features=LocalNetworkAccessChecks`,
-        // 注入补充 Patch 参数
+        // <PATCH>Browser Options</PATCH>
         ...patchOptions,
+        // <PATCH>Browser Options</PATCH>
         ...(options.args || []),
         this.userDataDir ? `--user-data-dir=${this.userDataDir}` : '',
       ].filter((_) => !!_),
