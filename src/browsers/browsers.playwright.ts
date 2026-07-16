@@ -127,15 +127,14 @@ class BasePlaywright extends EventEmitter {
       args.push('--headless=new');
     }
 
+    // <PATCH>Browser Options</PATCH>
     const patchOptions = [
-      // 浏览器参数
       '--disable-crashpad',
       '--disable-crashpad-for-testing',
       '--disable-crashpad-forwarding',
       '--disable-in-process-stack-traces',
       '--no-default-browser-check',
 
-      // 反检测增强
       '--disable-blink-features=AutomationControlled',
       '--disable-features=LocalNetworkAccessChecks,WebRtcHideLocalIpsWithMdns',
       '--enforce-webrtc-ip-permission-check',
@@ -144,14 +143,13 @@ class BasePlaywright extends EventEmitter {
       '--no-pings',
       '--webrtc-ip-handling-policy=disable_non_proxied_udp',
 
-      // 性能优化
       '--aggressive-cache-discard',
 
-      // 容器环境
       '--disable-setuid-sandbox',
       '--no-zygote',
       '--single-process',
     ];
+    // <PATCH>Browser Options</PATCH>
 
     return {
       ...opts,
@@ -167,8 +165,9 @@ class BasePlaywright extends EventEmitter {
           this.config.getChromiumDisabledFeatures(pwVersion),
           this.config.getBrowserlessChromiumDisabledFeatures(),
         ),
-        // 注入补充 Patch 参数
+        // <PATCH>Browser Options</PATCH>
         ...patchOptions,
+        // <PATCH>Browser Options</PATCH>
         this.userDataDir ? `--user-data-dir=${this.userDataDir}` : '',
       ],
       executablePath: this.executablePath(),
