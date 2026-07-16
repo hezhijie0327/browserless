@@ -1023,12 +1023,14 @@ export const getCDPClient = (page: Page): CDPSession => {
   return typeof c === 'function' ? c.call(page) : c;
 };
 
+// <PATCH>Privacy Badger</PATCH>
 export const privacyBadgerPath = path.join(
   __dirname,
   '..',
   'extensions',
   'privacy_badger',
 );
+// <PATCH>Privacy Badger</PATCH>
 
 export const ublockLitePath = path.join(
   __dirname,
