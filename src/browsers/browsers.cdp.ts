@@ -18,6 +18,7 @@ import puppeteer, { Browser, Page, Target } from 'puppeteer-core';
 import { Duplex } from 'stream';
 import { EventEmitter } from 'events';
 // 引入 adblocker 插件（使用 Zorilla 的 puppeteer-extra 插件封装）
+import { DEFAULT_INTERCEPT_RESOLUTION_PRIORITY } from 'puppeteer'
 import AdblockerPlugin from '@zorilla/puppeteer-extra-plugin-adblocker';
 import StealthPlugin from '@zorilla/puppeteer-extra-plugin-stealth';
 import { addExtra } from '@zorilla/puppeteer-extra';
@@ -221,6 +222,7 @@ export class ChromiumCDP extends EventEmitter {
       puppeteerStealth.use(
         AdblockerPlugin({
           blockTrackersAndAnnoyances: true,
+          interceptResolutionPriority: DEFAULT_INTERCEPT_RESOLUTION_PRIORITY,
           useCache: true,
         }) as unknown as Parameters<typeof puppeteerStealth.use>[0],
       );
