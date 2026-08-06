@@ -116,7 +116,7 @@ const getDebug = () => {
 
 /**
  * Chromium features Playwright disables by default, mirrored per supported
- * Playwright version (verified against playwright-core 1.57–1.61).
+ * Playwright version (verified against playwright-core 1.58–1.62).
  *
  * `--disable-features` is a single-valued Chromium switch: when it appears more
  * than once on the command line Chrome keeps ONLY the last occurrence — the
@@ -126,12 +126,34 @@ const getDebug = () => {
  * version itself disables or those features are silently re-enabled (e.g.
  * RenderDocument). See https://github.com/browserless/browserless/issues/5450
  *
- * The default is what the pinned playwright-core emits (1.61, identical for
- * 1.60); versions whose list differs are overridden below. These lists must
- * stay 1:1 with the installed Playwright versions — see the drift test in
+ * The default is what the pinned playwright-core emits (1.62); versions whose
+ * list differs are overridden below. These lists must stay 1:1 with the
+ * installed Playwright versions — see the drift test in
  * browsers.playwright.spec.ts.
  */
 const defaultChromiumDisabledFeatures: readonly string[] = [
+  'AvoidUnnecessaryBeforeUnloadCheckSync',
+  'BoundaryEventDispatchTracksNodeRemoval',
+  'DestroyProfileOnBrowserClose',
+  'DialMediaRouteProvider',
+  'GlobalMediaControls',
+  'HttpsUpgrades',
+  'LensOverlay',
+  'MediaRouter',
+  'PaintHolding',
+  'ThirdPartyStoragePartitioning',
+  'BlockOriginHeaderModificationOnRedirect',
+  'Translate',
+  'AutoDeElevate',
+  'OptimizationHints',
+  'msForceBrowserSignIn',
+  'msEdgeUpdateLaunchServicesPreferredVersion',
+];
+
+// 1.60 and 1.61 still disable RenderDocument (dropped in 1.62) and do not yet
+// disable BlockOriginHeaderModificationOnRedirect (added in 1.62 for
+// crbug/Chromium 149's redirect-header rejection).
+const playwright160And161DisabledFeatures: readonly string[] = [
   'AvoidUnnecessaryBeforeUnloadCheckSync',
   'BoundaryEventDispatchTracksNodeRemoval',
   'DestroyProfileOnBrowserClose',
@@ -150,7 +172,7 @@ const defaultChromiumDisabledFeatures: readonly string[] = [
   'msEdgeUpdateLaunchServicesPreferredVersion',
 ];
 
-// 1.58 and 1.59 match the default except the ms*/Edge features, which Playwright
+// 1.58 and 1.59 match 1.60/1.61 except the ms*/Edge features, which Playwright
 // began disabling in 1.60.
 const playwright158And159DisabledFeatures: readonly string[] = [
   'AvoidUnnecessaryBeforeUnloadCheckSync',
@@ -172,26 +194,10 @@ const playwright158And159DisabledFeatures: readonly string[] = [
 const chromiumDisabledFeaturesByPwVersion: Readonly<
   Record<string, readonly string[]>
 > = {
-  // 1.57 still disables AcceptCHFrame (crbug.com/1348106) and does not yet
-  // disable BoundaryEventDispatchTracksNodeRemoval or the ms*/Edge features.
-  '1.57': [
-    'AcceptCHFrame',
-    'AvoidUnnecessaryBeforeUnloadCheckSync',
-    'DestroyProfileOnBrowserClose',
-    'DialMediaRouteProvider',
-    'GlobalMediaControls',
-    'HttpsUpgrades',
-    'LensOverlay',
-    'MediaRouter',
-    'PaintHolding',
-    'ThirdPartyStoragePartitioning',
-    'Translate',
-    'AutoDeElevate',
-    'RenderDocument',
-    'OptimizationHints',
-  ],
   '1.58': playwright158And159DisabledFeatures,
   '1.59': playwright158And159DisabledFeatures,
+  '1.60': playwright160And161DisabledFeatures,
+  '1.61': playwright160And161DisabledFeatures,
 };
 
 /**
@@ -222,6 +228,10 @@ export class Config extends EventEmitter {
   protected dataDir = process.env.DATA_DIR
     ? untildify(process.env.DATA_DIR)
     : path.join(tmpdir(), 'browserless-data-dirs');
+
+  protected scratchDir = process.env.SCRATCH_DIR
+    ? untildify(process.env.SCRATCH_DIR)
+    : path.join(tmpdir(), 'browserless-scratch-dirs');
 
   protected metricsJSONPath = process.env.METRICS_JSON_PATH
     ? untildify(process.env.METRICS_JSON_PATH)
@@ -514,6 +524,25 @@ export class Config extends EventEmitter {
     }
 
     return this.downloadsDir;
+  }
+
+  /**
+   * Root under which each session gets its own directory to use as TMPDIR.
+   *
+   * Chromium writes its scratch — ScopedTempDir, component-updater fetches,
+   * crashpad — into `base::GetTempDir()`, and abandons all of it when the
+   * process exits on SIGKILL, which is how a browser that ignores SIGTERM is
+   * ended. In the shared temp dir that scratch is unreclaimable: it sits outside
+   * both getDataDir() and getDownloadsDir(), so nothing knows it exists and it
+   * survives every restart.
+   *
+   * Deliberately a sibling of the data-dir root rather than a child of the
+   * session's user-data dir: a caller-supplied user-data dir is the caller's to
+   * manage and is never removed here, so scratch nested inside one would
+   * accumulate there for the life of that profile.
+   */
+  public getScratchDir(): string {
+    return this.scratchDir;
   }
 
   /**
