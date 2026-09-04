@@ -6,8 +6,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG TZ=America/Los_Angeles
 ARG BLESS_USER_ID=999
 ARG APP_DIR=/usr/src/app
-ARG NODE_VERSION=v24.19.0
-ARG NPM_VERSION=11.19.0
+ARG NODE_VERSION=v24.20.0
+ARG NPM_VERSION=11.19.1
 
 ENV NODE_VERSION=$NODE_VERSION
 ENV NVM_DIR=/usr/src/.nvm
@@ -31,6 +31,7 @@ RUN mkdir -p $APP_DIR $NVM_DIR && \
 WORKDIR $APP_DIR
 
 COPY fonts/* /usr/share/fonts/truetype/
+COPY fonts/fonts.conf /etc/fonts/local.conf
 
 # Optional apt mirror override. Unset by default so external builders keep the
 # upstream archive.ubuntu.com + security.ubuntu.com defaults untouched. CI
@@ -46,8 +47,6 @@ RUN if [ -n "${APT_MIRROR}" ]; then \
 RUN apt-get update \
   && apt-get install -y --no-install-recommends software-properties-common \
   && add-apt-repository universe \
-  && echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections \
-  && add-apt-repository multiverse \
   && apt-get update \
   && apt-get install -y --no-install-recommends \
   ca-certificates \
@@ -77,7 +76,8 @@ RUN apt-get update \
   fonts-ubuntu \
   fonts-wqy-zenhei \
   fonts-open-sans \
-  ttf-mscorefonts-installer \
+  fonts-crosextra-carlito \
+  fonts-dejavu-core \
   && update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1 \
   && update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
   && fc-cache -f -v \

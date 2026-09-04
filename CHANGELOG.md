@@ -1,5 +1,122 @@
 # Changelog
 
+## [2.56.3](https://github.com/browserless/browserless/compare/v2.56.2...v2.56.3) (2026-09-04)
+
+
+### Bug Fixes
+
+* block URLs the guard rejects instead of killing the session ([#5562](https://github.com/browserless/browserless/issues/5562)) ([a4a2c19](https://github.com/browserless/browserless/commit/a4a2c1937edb2814060c02e6407ca64af66c76d6))
+
+<!-- browser-versions:start -->
+
+### Supported Libraries & Browsers
+
+- puppeteer-core: `25.9.0`
+- playwright-core: `1.62.1`, `1.61.1`, `1.60.0`, `1.59.1`, and `1.58.2`.
+- Chromium: `151.0.7922.34`
+- Chrome: `152.0.7977.75` (amd64 only)
+- Firefox: `153.0`
+- Webkit: `26.5`
+- Edge: `152.0.4191.53` (amd64 only)
+
+<!-- browser-versions:end -->
+
+## [2.56.2](https://github.com/browserless/browserless/compare/v2.56.1...v2.56.2) (2026-09-02)
+
+
+### Bug Fixes
+
+* match */* routes against any Accept header ([#5558](https://github.com/browserless/browserless/issues/5558)) ([f1f4e05](https://github.com/browserless/browserless/commit/f1f4e05c61d201126c41672e2e753818bdc1d489))
+* remediate CodeQL alerts ([#5557](https://github.com/browserless/browserless/issues/5557)) ([3c0a6a3](https://github.com/browserless/browserless/commit/3c0a6a3b2476bc93f2fedcdb7f5d9ab3fa805339))
+
+<!-- browser-versions:start -->
+
+### Supported Libraries & Browsers
+
+- puppeteer-core: `25.9.0`
+- playwright-core: `1.62.1`, `1.61.1`, `1.60.0`, `1.59.1`, and `1.58.2`.
+- Chromium: `151.0.7922.34`
+- Chrome: `152.0.7977.75` (amd64 only)
+- Firefox: `153.0`
+- Webkit: `26.5`
+- Edge: `152.0.4191.53` (amd64 only)
+
+<!-- browser-versions:end -->
+
+## [2.56.1](https://github.com/browserless/browserless/compare/v2.56.0...v2.56.1) (2026-09-01)
+
+
+### Bug Fixes
+
+* **AUTO-288:** preserve raw profile paths during token shimming ([#5547](https://github.com/browserless/browserless/issues/5547)) ([2222d9f](https://github.com/browserless/browserless/commit/2222d9f5c3e758f782dc066e5505ddad198ec2ee))
+* close function pages when user code fails ([#5554](https://github.com/browserless/browserless/issues/5554)) ([a36bb85](https://github.com/browserless/browserless/commit/a36bb850956af8eb217764a729266e9df2ab398f))
+
+
+### Build System & Runtime
+
+* bump Node to 24.20.0 and npm to 11.19.1 ([#5553](https://github.com/browserless/browserless/issues/5553)) ([f1e5077](https://github.com/browserless/browserless/commit/f1e507766ed04e81c61d1d4f1621ef9f22bfc318))
+
+<!-- browser-versions:start -->
+
+### Supported Libraries & Browsers
+
+- puppeteer-core: `25.8.0`
+- playwright-core: `1.62.1`, `1.61.1`, `1.60.0`, `1.59.1`, and `1.58.2`.
+- Chromium: `151.0.7922.34`
+- Chrome: `152.0.7977.64` (amd64 only)
+- Firefox: `153.0`
+- Webkit: `26.5`
+- Edge: `152.0.4191.53` (amd64 only)
+
+<!-- browser-versions:end -->
+
+## [2.56.0](https://github.com/browserless/browserless/compare/v2.55.4...v2.56.0) (2026-08-17)
+
+
+### Features
+
+* **PLT-1402:** accept blockAdsInclude in REST schemas ([#5541](https://github.com/browserless/browserless/issues/5541)) ([1f29e19](https://github.com/browserless/browserless/commit/1f29e1997b40a30bfdca4d12df17cfa33082a263))
+
+
+### Bug Fixes
+
+* **deps:** bump puppeteer-core to 25.7.0 ([#5545](https://github.com/browserless/browserless/issues/5545)) ([888bf45](https://github.com/browserless/browserless/commit/888bf452e0401af5a1dca8aefe5c61224550fc95))
+
+<!-- browser-versions:start -->
+
+### Supported Libraries & Browsers
+
+- puppeteer-core: `25.5.0`
+- playwright-core: `1.62.1`, `1.61.1`, `1.60.0`, `1.59.1`, and `1.58.2`.
+- Chromium: `151.0.7922.34`
+- Chrome: `151.0.7922.137` (amd64 only)
+- Firefox: `153.0`
+- Webkit: `26.5`
+- Edge: `151.0.4129.86` (amd64 only)
+
+<!-- browser-versions:end -->
+
+## [2.55.4](https://github.com/browserless/browserless/compare/v2.55.3...v2.55.4) (2026-08-12)
+
+
+### Bug Fixes
+
+* **fonts:** use metric-compatible clones so PDFs render correctly ([#5537](https://github.com/browserless/browserless/issues/5537)) ([7ff5582](https://github.com/browserless/browserless/commit/7ff5582e942c10368564ba4e2c72479748c16d91))
+
+<!-- browser-versions:start -->
+
+### Supported Libraries & Browsers
+
+- puppeteer-core: `25.4.0`
+- playwright-core: `1.62.1`, `1.61.1`, `1.60.0`, `1.59.1`, and `1.58.2`.
+- Chromium: `151.0.7922.34`
+- Chrome: `151.0.7922.71` (amd64 only)
+- Firefox: `153.0`
+- Webkit: `26.5`
+- Edge: `151.0.4129.59` (amd64 only)
+
+<!-- browser-versions:end -->
+
 ## [2.55.3](https://github.com/browserless/browserless/compare/v2.55.2...v2.55.3) (2026-08-04)
 
 
