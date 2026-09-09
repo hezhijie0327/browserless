@@ -13,10 +13,17 @@ import {
   toBlockedUrlPatterns,
   toBlockedUrlRules,
   ublockLitePath,
+  // <PATCH>Privacy Badger</PATCH>
+  privacyBadgerPath,
+  // <PATCH>Privacy Badger</PATCH>
 } from '@browserless.io/browserless';
 import puppeteer, { Browser, CDPSession, Page, Target } from 'puppeteer-core';
 import { Duplex } from 'stream';
 import { EventEmitter } from 'events';
+// <PATCH>@zorilla/puppeteer-extra-plugin-adblocker</PATCH>
+import { DEFAULT_INTERCEPT_RESOLUTION_PRIORITY } from 'puppeteer'
+import AdblockerPlugin from '@zorilla/puppeteer-extra-plugin-adblocker';
+// <PATCH>@zorilla/puppeteer-extra-plugin-adblocker</PATCH>
 import StealthPlugin from '@zorilla/puppeteer-extra-plugin-stealth';
 import { addExtra } from '@zorilla/puppeteer-extra';
 import getPort from 'get-port';
@@ -372,6 +379,18 @@ export class ChromiumCDP extends EventEmitter {
     this.port = await getPort();
     this.logger.debug(`${this.constructor.name} got open port ${this.port}`);
 
+    // <PATCH>@zorilla/puppeteer-extra-plugin-adblocker</PATCH>
+    if (this.blockAds) {
+      puppeteerStealth.use(
+        AdblockerPlugin({
+          blockTrackersAndAnnoyances: true,
+          interceptResolutionPriority: DEFAULT_INTERCEPT_RESOLUTION_PRIORITY,
+          useCache: true,
+        }) as unknown as Parameters<typeof puppeteerStealth.use>[0],
+      );
+    }
+    // <PATCH>@zorilla/puppeteer-extra-plugin-adblocker</PATCH>
+
     const extensionLaunchArgs = options.args?.find((a) =>
       a.startsWith('--load-extension'),
     );
@@ -384,6 +403,9 @@ export class ChromiumCDP extends EventEmitter {
     );
 
     const extensions = [
+      // <PATCH>@zorilla/puppeteer-extra-plugin-adblocker</PATCH>
+      this.blockAds ? privacyBadgerPath : null,
+      // <PATCH>@zorilla/puppeteer-extra-plugin-adblocker</PATCH>
       this.blockAds ? ublockLitePath : null,
       extensionLaunchArgs ? extensionLaunchArgs.split('=')[1] : null,
     ].filter((_) => !!_);
@@ -408,6 +430,30 @@ export class ChromiumCDP extends EventEmitter {
       }
     }
 
+    // <PATCH>Browser Options</PATCH>
+    const patchOptions = [
+      '--disable-crashpad',
+      '--disable-crashpad-for-testing',
+      '--disable-crashpad-forwarding',
+      '--disable-in-process-stack-traces',
+      '--no-default-browser-check',
+
+      '--disable-blink-features=AutomationControlled',
+      '--disable-features=LocalNetworkAccessChecks,WebRtcHideLocalIpsWithMdns',
+      '--enforce-webrtc-ip-permission-check',
+      '--exclude-switches=enable-automation',
+      '--force-webrtc-ip-handling-policy',
+      '--no-pings',
+      '--webrtc-ip-handling-policy=disable_non_proxied_udp',
+
+      '--aggressive-cache-discard',
+
+      '--disable-setuid-sandbox',
+      '--no-zygote',
+      '--single-process',
+    ];
+    // <PATCH>Browser Options</PATCH>
+
     const finalOptions = {
       ...options,
       args: [
@@ -420,6 +466,9 @@ export class ChromiumCDP extends EventEmitter {
         // This is needed to allow WebSocket connections to localhost.
         `--disable-features=LocalNetworkAccessChecks`,
         disableComponentUpdaterArg,
+        // <PATCH>Browser Options</PATCH>
+        ...patchOptions,
+        // <PATCH>Browser Options</PATCH>
         ...(options.args || []),
         this.userDataDir ? `--user-data-dir=${this.userDataDir}` : '',
       ].filter((_) => !!_),
