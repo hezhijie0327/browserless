@@ -1,5 +1,57 @@
 # Changelog
 
+## [2.56.6](https://github.com/browserless/browserless/compare/v2.56.5...v2.56.6) (2026-09-09)
+
+
+### Bug Fixes
+
+* allow numeric DNS names through IPv4 URL guards ([#5579](https://github.com/browserless/browserless/issues/5579)) ([499dba1](https://github.com/browserless/browserless/commit/499dba1b1a6846a33f6df7589d304aab44093aad))
+* block IPv4 prefixes without a trailing dot ([#5577](https://github.com/browserless/browserless/issues/5577)) ([e81e99c](https://github.com/browserless/browserless/commit/e81e99c451abfe5e234cb41b4ed3848509cf7754))
+* update Playwright to 1.63 with versioned compatibility ([#5573](https://github.com/browserless/browserless/issues/5573)) ([5c80510](https://github.com/browserless/browserless/commit/5c8051094a5687035f151b5f747e26a11d4f8844))
+
+<!-- browser-versions:start -->
+
+### Supported Libraries & Browsers
+
+- puppeteer-core: `25.10.0`
+- playwright-core: `1.63.0`, `1.62.1`, `1.61.1`, `1.60.0`, and `1.59.1`.
+- Chromium: `153.0.8010.12`
+- Chrome: `153.0.8010.36` (amd64 only)
+- Firefox: `155.0`
+- Webkit: `26.6`
+- Edge: `152.0.4191.66` (amd64 only)
+
+<!-- browser-versions:end -->
+
+## [2.56.5](https://github.com/browserless/browserless/compare/v2.56.4...v2.56.5) (2026-09-09)
+
+
+### Bug Fixes
+
+* block URLs with Network.setBlockedURLs, not Fetch (PLT-1596) ([#5574](https://github.com/browserless/browserless/issues/5574)) ([c1f3509](https://github.com/browserless/browserless/commit/c1f3509ad195135975dbb5312761d6b39547b4f7))
+
+## [2.56.4](https://github.com/browserless/browserless/compare/v2.56.3...v2.56.4) (2026-09-07)
+
+
+### Bug Fixes
+
+* correct the built-in docs favicon URL ([#5570](https://github.com/browserless/browserless/issues/5570)) ([81941bf](https://github.com/browserless/browserless/commit/81941bf885d4cc8df2215efdd48f3fe4238be4fd))
+* serve the images the API docs page references ([#5568](https://github.com/browserless/browserless/issues/5568)) ([ba7b504](https://github.com/browserless/browserless/commit/ba7b5046666e997b6f05e241e8c19f7a06a3e820))
+
+<!-- browser-versions:start -->
+
+### Supported Libraries & Browsers
+
+- puppeteer-core: `25.9.0`
+- playwright-core: `1.62.1`, `1.61.1`, `1.60.0`, `1.59.1`, and `1.58.2`.
+- Chromium: `151.0.7922.34`
+- Chrome: `152.0.7977.82` (amd64 only)
+- Firefox: `153.0`
+- Webkit: `26.5`
+- Edge: `152.0.4191.62` (amd64 only)
+
+<!-- browser-versions:end -->
+
 ## [2.56.3](https://github.com/browserless/browserless/compare/v2.56.2...v2.56.3) (2026-09-04)
 
 
